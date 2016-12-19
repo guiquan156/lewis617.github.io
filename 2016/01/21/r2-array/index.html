@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>React与Redux教程（三）reduce()、filter()、map()、some()、every()、...展开属性 | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="reduce()、filter()、map()、some()、every()、…展开属性这些概念属于es5、es6中的语法，跟React+Redux并没有什么联系，我们直接在https://developer.mozilla.org/en-US/ 这里可以搜索到相关api文档。
+但是Redux的官方示例中包含了这些语法的用法，我们正好可以在程序中学习这些语法。这里全部默认使用es6的写法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React与Redux教程（三）reduce()、filter()、map()、some()、every()、...展开属性">
+<meta property="og:url" content="https://lewis617.github.io/2016/01/21/r2-array/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="reduce()、filter()、map()、some()、every()、…展开属性这些概念属于es5、es6中的语法，跟React+Redux并没有什么联系，我们直接在https://developer.mozilla.org/en-US/ 这里可以搜索到相关api文档。
+但是Redux的官方示例中包含了这些语法的用法，我们正好可以在程序中学习这些语法。这里全部默认使用es6的写法。">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xtk41cryj208h04zt8o.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.807Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React与Redux教程（三）reduce()、filter()、map()、some()、every()、...展开属性">
+<meta name="twitter:description" content="reduce()、filter()、map()、some()、every()、…展开属性这些概念属于es5、es6中的语法，跟React+Redux并没有什么联系，我们直接在https://developer.mozilla.org/en-US/ 这里可以搜索到相关api文档。
+但是Redux的官方示例中包含了这些语法的用法，我们正好可以在程序中学习这些语法。这里全部默认使用es6的写法。">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xtk41cryj208h04zt8o.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-r2-array" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/01/21/r2-array/" class="article-date">
+  <time datetime="2016-01-21T01:23:00.000Z" itemprop="datePublished">2016-01-21</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      React与Redux教程（三）reduce()、filter()、map()、some()、every()、...展开属性
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>reduce()、filter()、map()、some()、every()、…展开属性这些概念属于es5、es6中的语法，跟React+Redux并没有什么联系，我们直接在<a href="https://developer.mozilla.org/en-US/" target="_blank" rel="external">https://developer.mozilla.org/en-US/</a> 这里可以搜索到相关api文档。</p>
+<p>但是Redux的官方示例中包含了这些语法的用法，我们正好可以在程序中学习这些语法。这里全部默认使用es6的写法。</p>
+<a id="more"></a>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p>这是官方的todomvc的例子（<a href="https://github.com/lewis617/react-redux-tutorial/tree/master/redux-examples/todomvc" target="_blank" rel="external">https://github.com/lewis617/react-redux-tutorial/tree/master/redux-examples/todomvc</a>）：</p>
+<p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9xtk41cryj208h04zt8o.jpg" alt=""></p>
+<h2 id="reduce"><a href="#reduce" class="headerlink" title="reduce()"></a>reduce()</h2><p>遍历数组，在每一项元素后面触发一个回调函数，经过计算返回一个累加的值。</p>
+<p>components/MainSection.js 62行</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> completedCount = todos.reduce(<span class="function">(<span class="params">count, todo</span>) =&gt;</span></div><div class="line">      todo.completed ? count + <span class="number">1</span> : count,</div><div class="line">      <span class="number">0</span></div><div class="line">    )</div></pre></td></tr></table></figure>
+<p><code>todos</code>是个数组，<code>reduce()</code>的第一个参数是个箭头语法，也就是个回调函数，这个回调函数的第一个参数是上一个返回值（但是这里被初始化为<code>0</code>）,第二个参数是当前元素的值。<code>reduce()</code>的第二个参数是个初始化值（不必需），初始化了上一个元素的值（这里是<code>count</code>）</p>
+<p>遍历数组<code>todos</code>的第一个值的时候，<code>count</code>为0，<code>todo</code>是<code>todos</code>的第一项，返回值加一或者不变。（<strong>条件 ? 结果1 : 结果2三元运算）</strong></p>
+<p>遍历数组<code>todos</code>的第二个值的时候，<code>count</code>为上一个返回值，<code>todo</code>是<code>todos</code>的第二项，返回值加一或者不变。</p>
+<p>……</p>
+<p>遍历结束后，即可得到数组中，<code>completed</code>属性为<code>true</code>的个数，也就是已完成的任务的个数。</p>
+<h2 id="filter"><a href="#filter" class="headerlink" title="filter()"></a>filter()</h2><p>遍历数组，在每一项元素后面触发一个回调函数，通过判断，保留或移除当前项，最后返回一个新数组。</p>
+<p>顾名思义就是过滤。</p>
+<p>reducers/todos.js 24行</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> state.filter(<span class="function"><span class="params">todo</span> =&gt;</span></div><div class="line">        todo.id !== action.id</div><div class="line">      )</div></pre></td></tr></table></figure>
+<p><code>state</code>是个任务数组，<code>filter()</code>里面只有一个参数，就是个箭头函数，该函数只有一个参数是<code>todo</code>，也就是数组的每一项元素，箭头后面那个判断语句，如果返回<code>true</code>则保留当前项，反之移除当前项。</p>
+<p>有的同学会问，<code>todo.id !==action.id</code>前为什么没有<code>return</code>，这是箭头函数的语法，箭头两端就是输入输出，不用写<code>return</code>。如果用es5的写法就是：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> state.filter(<span class="function"><span class="keyword">function</span>(<span class="params">todo</span>) </span>&#123;  </div><div class="line">　　<span class="keyword">return</span> todo.id !== action.id  </div><div class="line">　　&#125;  </div><div class="line">)</div></pre></td></tr></table></figure>
+<p>该代码段的作用是，过滤掉任务数组中，<code>id</code>与指定<code>id</code>相同的任务。返回一个新的任务数组。</p>
+<h2 id="map"><a href="#map" class="headerlink" title="map()"></a>map()</h2><p>遍历数组，在每一项元素后面触发一个回调函数，通过计算，返回一个新的当前项，最后返回一个新数组。</p>
+<p>reducers/todos.js 29行</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> state.map(<span class="function"><span class="params">todo</span> =&gt;</span></div><div class="line">        todo.id === action.id ?</div><div class="line">          <span class="built_in">Object</span>.assign(&#123;&#125;, todo, &#123; <span class="attr">text</span>: action.text &#125;) :</div><div class="line">          todo</div><div class="line">      )</div></pre></td></tr></table></figure>
+<p>箭头后面的值是个三元运算符，也就是<code>return</code>的新元素。如果<code>id</code>匹配，则通过<code>Object.assign()</code>合并一个新的属性，也就是给<code>todo</code>添加或者重写一个<code>text</code>属性，属性值为<code>action.text</code>。</p>
+<p><code>Object.assign()</code>第一个参数是<code>target</code>，就是目标，第二个第三个以及后面的参数都是<code>source</code>，也就是拷贝的源，是不是很像jquery插件中的<code>extend</code>？</p>
+<p>这个代码的作用是给数组中指定的任务更新<code>text</code>属性。</p>
+<h2 id="some-、every"><a href="#some-、every" class="headerlink" title="some()、every()"></a>some()、every()</h2><p>遍历数组，在每一项元素后面触发一个回调函数，通过判断，返回一个布尔值。<code>some()</code>是只要有一个满足判断，就返回<code>true</code>，<code>every()</code>是只要有一项不满足判断，就返回<code>false</code>。</p>
+<p>components/MainSection.js  19 行</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> atLeastOneCompleted = <span class="keyword">this</span>.props.todos.some(<span class="function"><span class="params">todo</span> =&gt;</span> todo.completed)</div></pre></td></tr></table></figure>
+<p>遍历任务数组，有一个任务的属性<code>completed</code>为<code>true</code>，就返回<code>true</code>。</p>
+<p>reducers/todos.js 43行</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">const</span> areAllMarked = state.every(<span class="function"><span class="params">todo</span> =&gt;</span> todo.completed)</div></pre></td></tr></table></figure>
+<p>遍历任务数组，每一项任务的<code>completed</code>属性均为<code>true</code>时候，返回<code>true</code>。</p>
+<h2 id="…展开属性"><a href="#…展开属性" class="headerlink" title="…展开属性"></a>…展开属性</h2><p>reducers/todos.js 20行</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">    </div><div class="line">    </div><div class="line"><span class="keyword">return</span> [</div><div class="line">        &#123;</div><div class="line">          <span class="attr">id</span>: state.reduce(<span class="function">(<span class="params">maxId, todo</span>) =&gt;</span> <span class="built_in">Math</span>.max(todo.id, maxId), <span class="number">-1</span>) + <span class="number">1</span>,</div><div class="line">          <span class="attr">completed</span>: <span class="literal">false</span>,</div><div class="line">          <span class="attr">text</span>: action.text</div><div class="line">        &#125;, </div><div class="line">        ...state</div><div class="line">      ]</div></pre></td></tr></table></figure>
+<p>展开<code>state</code>数组的每一项到当前的数组</p>
+<p>components/MainSection.js  72 行</p>
+<figure class="highlight jsx"><figcaption><span>harmony</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;TodoItem key=&#123;todo.id&#125; todo=&#123;todo&#125; &#123;...actions&#125; /&gt;</div></pre></td></tr></table></figure>
+<p>展开<code>actions</code>的每一个属性到组件中，最后在props上可以获取到。</p>
+<hr>
+<h2 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h2><p><a href="https://github.com/lewis617/react-redux-tutorial" target="_blank" rel="external">https://github.com/lewis617/react-redux-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/01/21/r2-array/" data-id="ciww39pik000w0i341uzcd0r9"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redux/">Redux</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/01/26/r2-undo/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          React与Redux教程（四）undo、devtools、router
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/01/20/r2-state/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">React与Redux教程（二）Redux的单一状态树完全替代了React的状态机？</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-r2-array" data-title="React与Redux教程（三）reduce()、filter()、map()、some()、every()、...展开属性"
+		 data-url="https://lewis617.github.io/2016/01/21/r2-array/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

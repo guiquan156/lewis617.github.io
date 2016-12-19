@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>React 与 Redux 在生产环境中的实践总结 | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前段时间使用 React 与 Redux 重构了我们360网络安全研究院的 开放数据平台。现将其中一些技术实践经验总结如下：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React 与 Redux 在生产环境中的实践总结">
+<meta property="og:url" content="https://lewis617.github.io/2016/11/26/opendata/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="前段时间使用 React 与 Redux 重构了我们360网络安全研究院的 开放数据平台。现将其中一些技术实践经验总结如下：">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React 与 Redux 在生产环境中的实践总结">
+<meta name="twitter:description" content="前段时间使用 React 与 Redux 重构了我们360网络安全研究院的 开放数据平台。现将其中一些技术实践经验总结如下：">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-opendata" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/11/26/opendata/" class="article-date">
+  <time datetime="2016-11-26T06:36:00.000Z" itemprop="datePublished">2016-11-26</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      React 与 Redux 在生产环境中的实践总结
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>前段时间使用 React 与 Redux 重构了我们360网络安全研究院的 <a href="http://data.netlab.360.com/" target="_blank" rel="external">开放数据平台</a>。现将其中一些技术实践经验总结如下：</p>
+<a id="more"></a>
+<h2 id="Universal-渲染"><a href="#Universal-渲染" class="headerlink" title="Universal 渲染"></a>Universal 渲染</h2><p>Universal （“同构”现在是公认的不准确的叫法）渲染是指在服务端与客户端使用一套代码进行渲染的技术。它所带来的优势如下：</p>
+<ol>
+<li>与实现服务端渲染的传统应用相比，Universal 渲染中的客户端渲染减少了网络请求（主要是模板和静态资源的请求），提高了页面间切换的速度，可以看到页面之间的切换都是瞬间完成的。</li>
+<li>与实现客户端渲染的传统 SPA（比如 Angular1.x 搭建的单页面应用）相比，Universal 渲染的服务端渲染提升了首屏加载速度，无须等待庞大的 Javascript 脚本加载完成后进行渲染，因此也无须使用欢迎界面了。</li>
+<li>与使用不同语言实现服务端渲染＋客户端渲染的应用（指的是后端语言为 Java、Python、PHP、前端语言为 JavaScript 的应用）相比，由于 Universal 渲染使用同一套代码（前后端均为 JavaScript），因此至少减少了一半的代码量。</li>
+</ol>
+<p>Universal 渲染非常复杂，需要权衡的东西很多。不过这都是值得的，真正让网站达到了快如鬼魅的速度！顺便引用一句话：</p>
+<blockquote>
+<p> According to research at Google, the difference of just 200 milliseconds in page load performance has an impact on user behavior. </p>
+<p>根据 Google 的调查，在一个页面的加载过程中，仅仅200毫秒的差异就可以影响用户的行为。</p>
+</blockquote>
+<p>另外，Universal 也能保证 SEO，毕竟搜索引擎无法和 JavaScript 通信。</p>
+<h2 id="延迟渲染"><a href="#延迟渲染" class="headerlink" title="延迟渲染"></a>延迟渲染</h2><p>很多人抱怨 React 并没有大家说的那么快，其实 React 只是便于优化性能，在没有经验的新手手中，React确实可能会很慢。但如果你对 React 非常了解，那么快如鬼魅便不是虚言。React 性能优化的方法很多，网上也有无数的文章对其进行介绍（选择 React 的另一好处：活跃的社区），常见的方法主要是，使用不可变数据，快速进行变更检查，以避免不必要的重新渲染。但我们还要介绍一种方法——延迟渲染。</p>
+<p>延迟渲染类似于分页或瀑布流，就是在一个有大量数据页面中，先渲染一部分，等用户滚动下去后，再进行渲染。</p>
+<p>延迟渲染除了可以提升性能之外，还可以过滤掉不需要在服务端渲染的代码（服务端可没有re-render），以减少 Universal 的难度。</p>
+<p>延迟渲染的方法很多，实现的轮子也很多，不再赘述了。</p>
+<h2 id="减小重量"><a href="#减小重量" class="headerlink" title="减小重量"></a>减小重量</h2><p>在 React 与 Redux 的项目中，不可避免要引入一些第三方的库，因此最终打包的脚本重量很容易达到 500-800kb 以上（gzip 压缩前）。尽管首屏渲染速度不会受此影响（因为我们实现了 Universal 渲染中的服务端渲染，而浏览器又是自上而下解析的），但我们依然希望这个脚本的重量能够更小。现将一些可行的办法列举如下：</p>
+<h3 id="改变库的调用方式"><a href="#改变库的调用方式" class="headerlink" title="改变库的调用方式"></a>改变库的调用方式</h3><p>写过NPM的包的同学很清楚，一个包通常会有一个入口文件，我们将所有的模块都放在这个入口文件中，以便其他开发者调用。但是如果仅仅只用了一个包中很少一个模块，那么从入口文件调用就会导致增加了很多多余的模块。为此，我们应该改变一些库的调用方式，来避免这种情况，比如：</p>
+<p>React Bootstrap 应该这么调用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> IndexLink <span class="keyword">from</span> <span class="string">'react-router/lib/IndexLink'</span>;</div><div class="line"><span class="keyword">import</span> Navbar <span class="keyword">from</span> <span class="string">'react-bootstrap/lib/Navbar'</span>;</div><div class="line"><span class="keyword">import</span> Nav <span class="keyword">from</span> <span class="string">'react-bootstrap/lib/Nav'</span>;</div><div class="line"><span class="keyword">import</span> NavItem <span class="keyword">from</span> <span class="string">'react-bootstrap/lib/NavItem'</span>;</div></pre></td></tr></table></figure>
+<p>不应该这么调用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123; IndexLink, Navbar, Nav, NavItem &#125;<span class="keyword">from</span> <span class="string">'react-router'</span>;</div></pre></td></tr></table></figure>
+<p>React Router 应该这么调用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> Route <span class="keyword">from</span> <span class="string">'react-router/lib/Route'</span>;</div><div class="line"><span class="keyword">import</span> IndexRoute <span class="keyword">from</span> <span class="string">'react-router/lib/IndexRoute'</span>;</div></pre></td></tr></table></figure>
+<p>不应该这么调用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123; Route, IndexRoute &#125; <span class="keyword">from</span> <span class="string">'react-router/lib/Route'</span>;</div></pre></td></tr></table></figure>
+<p>这种改进方式所带来的效果非常明显，至少能减少100kb的重量。</p>
+<p>除此之外，Bootstrap的样式文件也应该进行自定义，并去除一些不用的模块。最终我们项目中所有的样式文件合并后也只有22kb（gzip 压缩后）。</p>
+<h3 id="代码分割"><a href="#代码分割" class="headerlink" title="代码分割"></a>代码分割</h3><p>使用 webpack 1.x 的 <code>require.ensure</code> 可以轻易实现代码分割。分割的对象主要有俩个：</p>
+<ol>
+<li>路由组件 </li>
+<li>只在个别页面使用的大型第三方库</li>
+</ol>
+<p>路由组件的分割意义不大，因为我们写的代码几乎很少（这也正是使用库和框架的意义），即便按需加载，也不会带来太多的提升。而且，原本打包成一个文件，可以进行代码去重，但分割后就无法实现这个功能了（当然，如果你将公共库提取出来了，这个问题就不存在了）。不过，如果你的项目非常庞大，也可以试试。</p>
+<p>分割只在个别页面使用的大型第三方库是有意义的。比如，我们项目中一些页面使用了很重的 Highcharts，但也有很多页面不需要它，如果不对其进行代码分割，就会连累不使用 Highcharts 的页面。所以应该对只在个别页面使用的大型第三方库进行分割。方法如下：</p>
+<p>将这些库使用 <code>require.ensure</code> 封装成 Promise：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> loadHighcharts = <span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>)=&gt;</span> &#123;</div><div class="line">  <span class="built_in">require</span>.ensure([], (<span class="built_in">require</span>)=&gt; &#123;</div><div class="line">    <span class="keyword">if</span> (!<span class="built_in">window</span>.Highcharts) &#123;</div><div class="line">      <span class="built_in">window</span>.Highcharts = <span class="built_in">require</span>(<span class="string">'highcharts'</span>);</div><div class="line">    &#125;</div><div class="line">    resolve(<span class="built_in">window</span>.Highcharts);</div><div class="line">  &#125;, <span class="string">'highcharts'</span>);</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p>然后，在组件中调用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> React, &#123; Component, PropTypes &#125; <span class="keyword">from</span> <span class="string">'react'</span>;</div><div class="line"><span class="keyword">import</span> &#123; loadHighcharts &#125; <span class="keyword">from</span> <span class="string">'../Map/load'</span>;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Chart</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</div><div class="line">  componentDidMount() &#123;</div><div class="line">    loadHighcharts()</div><div class="line">      .then(<span class="function"><span class="params">Highcharts</span> =&gt;</span> &#123;</div><div class="line">        ...</div><div class="line">        this.chart = Highcharts.chart(<span class="keyword">this</span>.container, config);</div><div class="line">      &#125;);</div><div class="line"></div><div class="line">  &#125;</div><div class="line"></div><div class="line">  componentWillUnmount() &#123;</div><div class="line">    <span class="keyword">this</span>.chart.destroy();</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  render() &#123;</div><div class="line">    <span class="keyword">return</span> (</div><div class="line">      <span class="xml"><span class="tag">&lt;<span class="name">div</span></span></span></div><div class="line">        <span class="attr">ref</span>=<span class="string">&#123;(c)</span> =&gt; &#123;</div><div class="line">          this.container = c;</div><div class="line">        &#125;&#125;</div><div class="line">        style=&#123;&#123;</div><div class="line">          height: 400,</div><div class="line">          minWidth: 310,</div><div class="line">          margin: '0 auto',</div><div class="line">          textAlign:'center'</div><div class="line">        &#125;&#125;</div><div class="line">      &gt;</div><div class="line">        <span class="tag">&lt;<span class="name">i</span> <span class="attr">className</span>=<span class="string">"fa fa-spinner fa-spin fa-2x fa-fw"</span>/&gt;</span></div><div class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">    );</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="启用-gzip-压缩"><a href="#启用-gzip-压缩" class="headerlink" title="启用 gzip 压缩"></a>启用 gzip 压缩</h3><p>启用 gzip 压缩的效果更加明显，往往能减少 70% 的重量，最终我们项目的代码重量一共只有130kb（包含了React Bootstrap、React Rouer 在内的N多重量级第三方库，另外还有所有的页面代码在里面）。这个方法比较常见，不再赘述。</p>
+<p>减小重量的方法就先聊到这吧！</p>
+<h2 id="使用更少的样板代码发起异步action"><a href="#使用更少的样板代码发起异步action" class="headerlink" title="使用更少的样板代码发起异步action"></a>使用更少的样板代码发起异步action</h2><p>很多人说 Redux 代码多，开发效率低。其实 Redux 是可以灵活使用以及拓展的，经过充分定制的 Redux 其实写不了几行代码。今天先介绍一个很好用的 Redux 拓展—— <a href="https://github.com/lewis617/redux-amrc" target="_blank" rel="external">redux-amrc</a>。它可以帮助我们使用更少的样板代码发起异步action。</p>
+<p>一般情况下，为了清楚地记录异步的过程，我们需要使用 三个 action 来记录状态变化。通常，我们的代码会是这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> USER_REQUEST = <span class="string">'USER_REQUEST'</span></div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> USER_SUCCESS = <span class="string">'USER_SUCCESS'</span></div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> USER_FAILURE = <span class="string">'USER_FAILURE'</span></div></pre></td></tr></table></figure>
+<p>使用了 redux-amrc 后，再也不用写这么多action了，甚至连处理这些action的reducer都不用写，你只需要把异步以Promise的形式传给 redux-amrc就行了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123; ASYNC &#125; <span class="keyword">from</span> <span class="string">'redux-amrc'</span>;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 这个action创建函数可以帮你自动发起 LOAD 和 LOAD_SUCCESS,</div><div class="line"> * state.async.[key] 将会变为 'success'</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">success</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> &#123;</div><div class="line">    [ASYNC]: &#123;</div><div class="line">      <span class="attr">key</span>: <span class="string">'key'</span>,</div><div class="line">      <span class="attr">promise</span>: <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">Promise</span>.resolve(<span class="string">'success'</span>)</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * 这个action创建函数可以帮你自动发起 LOAD 和 LOAD_FAIL,</div><div class="line"> * state.async.loadState.[key].error 将会变为 'fail'</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fail</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> &#123;</div><div class="line">    [ASYNC]: &#123;</div><div class="line">      <span class="attr">key</span>: <span class="string">'key'</span>,</div><div class="line">      <span class="attr">promise</span>: <span class="function"><span class="params">()</span> =&gt;</span> <span class="built_in">Promise</span>.reject(<span class="string">'fail'</span>)</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>更多的使用方法，请参考<a href="https://lewis617.github.io/redux-amrc/">官网文档</a>。</p>
+<h2 id="与-传统的DOM操作相结合"><a href="#与-传统的DOM操作相结合" class="headerlink" title="与 传统的DOM操作相结合"></a>与 传统的DOM操作相结合</h2><p>React 强调声明式构建用户界面，但在一些情况下，往往还是操作 DOM 来得快。事实上，在 React 中操作 DOM 也很方便。现将一些场景列举如下：</p>
+<h3 id="使用Canvas"><a href="#使用Canvas" class="headerlink" title="使用Canvas"></a>使用Canvas</h3><p>有时候我们需要使用 Canvas 画个多边形什么的，尽管已经有很多封装 Canvas 的 React 库了，但命令式的 Canvas 画法也非常方便，可以直接在React 中使用：</p>
+<p>比如，这么一个画多边形的方法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * 使用canvas画多边形</div><div class="line"> * @param c：canvas context</div><div class="line"> * @param n：多边形的边数</div><div class="line"> * @param r：多边形的半径</div><div class="line"> * @param color：线条颜色</div><div class="line"> */</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">drawHexagon</span>(<span class="params">c, n, r, color</span>) </span>&#123;</div><div class="line">  <span class="keyword">const</span> context = c;</div><div class="line">  <span class="keyword">const</span> x = context.canvas.width / <span class="number">2</span>;</div><div class="line">  <span class="keyword">const</span> y = context.canvas.height / <span class="number">2</span>;</div><div class="line">  <span class="keyword">const</span> ang = (<span class="built_in">Math</span>.PI * <span class="number">2</span>) / n; <span class="comment">// 旋转的角度</span></div><div class="line">  context.save();<span class="comment">// 保存状态</span></div><div class="line">  context.fillStyle = <span class="string">'transparent'</span>;<span class="comment">// 填充颜色</span></div><div class="line">  context.strokeStyle = color;<span class="comment">// 填充线条颜色</span></div><div class="line">  context.lineWidth = <span class="number">1</span>;<span class="comment">// 设置线宽</span></div><div class="line">  context.translate(x, y);<span class="comment">// 原点移到x,y处，即要画的多边形中心</span></div><div class="line">  context.moveTo(<span class="number">0</span>, -r);<span class="comment">// 据中心r距离处画点</span></div><div class="line">  context.beginPath();</div><div class="line">  context.rotate(ang / <span class="number">2</span>);<span class="comment">// 旋转</span></div><div class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; n; i += <span class="number">1</span>) &#123;</div><div class="line">    context.rotate(ang);<span class="comment">// 旋转</span></div><div class="line">    context.lineTo(<span class="number">0</span>, -r);<span class="comment">// 据中心r距离处连线</span></div><div class="line">  &#125;</div><div class="line">  context.closePath();</div><div class="line">  context.stroke();</div><div class="line">  context.fill();</div><div class="line">  context.restore();<span class="comment">// 返回原始状态</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以这么在 React 中用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Hexagon</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</div><div class="line">  <span class="keyword">static</span> propTypes = &#123;</div><div class="line">    <span class="attr">title</span>: PropTypes.string.isRequired,</div><div class="line">    <span class="attr">content</span>: PropTypes.array.isRequired</div><div class="line">  &#125;;</div><div class="line"></div><div class="line">  componentDidMount() &#123;</div><div class="line">    <span class="keyword">const</span> context = <span class="keyword">this</span>.canvas.getContext(<span class="string">'2d'</span>);</div><div class="line">    <span class="keyword">const</span> sin60 = <span class="built_in">Math</span>.sin(<span class="built_in">Math</span>.PI / <span class="number">3</span>);</div><div class="line">    drawHexagon(context, <span class="number">6</span>, <span class="number">80</span> / sin60, <span class="string">'#D9DADB'</span>);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  render() &#123;</div><div class="line">    <span class="keyword">return</span> (</div><div class="line">      <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></div><div class="line">        <span class="tag">&lt;<span class="name">canvas</span></span></div><div class="line">          <span class="attr">width</span>=<span class="string">"190px"</span></div><div class="line">          <span class="attr">height</span>=<span class="string">"170px"</span></div><div class="line">          <span class="attr">ref</span>=<span class="string">&#123;(c)</span> =&gt; &#123;</div><div class="line">            this.canvas = c;</div><div class="line">          &#125;&#125;</div><div class="line">        /&gt;</div><div class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></div><div class="line">    );</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其实任何基于 DOM 的操作方法都可以这么玩！你可以把 <code>componentDidMount()</code> 当成 jQuery 的 <code>$(document).ready()</code> 方法。</p>
+<h3 id="实现图表"><a href="#实现图表" class="headerlink" title="实现图表"></a>实现图表</h3><p>无论你之前使用的是 D3 还是 Highcharts，几乎都是基于 DOM 来完成图表的绘制的，在 React 中，如果你不想使用一些封装好的库，也可以操作DOM，方法和在 React 组件中画 Canvas 一样：</p>
+<ul>
+<li>渲染一个div </li>
+<li>使用 ref 属性获取DOM  </li>
+<li>操作DOM</li>
+</ul>
+<p>需要注意的是，如果你的库不够智能，那么你需要在 React 组件 卸载时 销毁操作DOM 产生的对象，以防止内存泄露。</p>
+<h3 id="实现返回顶部"><a href="#实现返回顶部" class="headerlink" title="实现返回顶部"></a>实现返回顶部</h3><p>返回顶部这个功能也操作了 BOM 和 DOM，它与 React 的结合方法如下：</p>
+<ul>
+<li>使用 React 渲染一个 <code>a</code> 标签，并添加返回顶部的点击事件 </li>
+<li>在组件挂载和卸载时分别添加和移除 <code>window</code> 的 <code>scroll</code> 事件来显示或隐藏返回顶部的 <code>a</code> 标签</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> React, &#123; Component &#125; <span class="keyword">from</span> <span class="string">'react'</span>;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ScrollLink</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</div><div class="line">  <span class="keyword">constructor</span>() &#123;</div><div class="line">    <span class="keyword">super</span>();</div><div class="line">    <span class="keyword">this</span>.state = &#123; <span class="attr">linkStyle</span>: &#123; <span class="attr">display</span>: <span class="string">'none'</span> &#125; &#125;;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  componentWillMount() &#123;</div><div class="line">    <span class="built_in">window</span>.addEventListener(<span class="string">'scroll'</span>, <span class="keyword">this</span>.handleScroll);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  componentWillUnmount() &#123;</div><div class="line">    <span class="built_in">window</span>.removeEventListener(<span class="string">'scroll'</span>, <span class="keyword">this</span>.handleScroll);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  handleScroll = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">    <span class="keyword">const</span> top = <span class="built_in">window</span>.pageYOffset || <span class="built_in">document</span>.documentElement.scrollTop;</div><div class="line">    <span class="keyword">this</span>.setState(&#123; <span class="attr">linkStyle</span>: &#123; <span class="attr">display</span>: top &gt; <span class="number">100</span> ? <span class="string">'block'</span> : <span class="string">'none'</span> &#125; &#125;);</div><div class="line">  &#125;;</div><div class="line"></div><div class="line">  scrollToTop = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">    <span class="keyword">const</span> scrollTo = <span class="function">(<span class="params">element, to, duration</span>) =&gt;</span> &#123;</div><div class="line">      <span class="keyword">if</span> (duration &lt;= <span class="number">0</span>) <span class="keyword">return</span>;</div><div class="line">      <span class="keyword">const</span> _element = element;</div><div class="line">      <span class="keyword">const</span> difference = to - _element.scrollTop;</div><div class="line">      <span class="keyword">const</span> perTick = (difference / duration) * <span class="number">10</span>;</div><div class="line"></div><div class="line">      setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</div><div class="line">        _element.scrollTop += perTick;</div><div class="line">        <span class="keyword">if</span> (_element.scrollTop === to) <span class="keyword">return</span>;</div><div class="line">        scrollTo(_element, to, duration - <span class="number">10</span>);</div><div class="line">      &#125;, <span class="number">10</span>);</div><div class="line">    &#125;;</div><div class="line">    scrollTo(<span class="built_in">document</span>.body, <span class="number">0</span>, <span class="number">100</span>);</div><div class="line">  &#125;;</div><div class="line"></div><div class="line">  render() &#123;</div><div class="line">    <span class="keyword">const</span> styles = <span class="built_in">require</span>(<span class="string">'./index.scss'</span>);</div><div class="line"></div><div class="line">    <span class="keyword">return</span> (</div><div class="line">      <span class="xml"><span class="tag">&lt;<span class="name">a</span></span></span></div><div class="line">        <span class="attr">className</span>=<span class="string">&#123;styles.scrollLink&#125;</span></div><div class="line">        <span class="attr">onClick</span>=<span class="string">&#123;this.scrollToTop&#125;</span></div><div class="line">        <span class="attr">style</span>=<span class="string">&#123;this.state.linkStyle&#125;</span></div><div class="line">      &gt;</div><div class="line">        <span class="tag">&lt;<span class="name">i</span> <span class="attr">className</span>=<span class="string">"glyphicon glyphicon-arrow-up"</span>/&gt;</span></div><div class="line">      <span class="tag">&lt;/<span class="name">a</span>&gt;</span></div><div class="line">    );</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">export default ScrollLink;</div></pre></td></tr></table></figure>
+<p>React 与 Redux 的实践经验还有很多，由于篇幅原因，在后续的博文中我们再一一介绍。</p>
+<hr>
+<h2 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h2><p><em>如果您觉得本博客教程帮到了您，就赏颗星吧！</em></p>
+<p><a href="https://github.com/lewis617/react-redux-tutorial" target="_blank" rel="external">https://github.com/lewis617/react-redux-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/11/26/opendata/" data-id="ciww39pii000u0i34k2m2kok8"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redux/">Redux</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Universal/">Universal</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/11/30/redux-amrc/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          用更少的代码发起异步 action
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/11/20/r2-book/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">《React 与 Redux 开发实例精解》出版了！</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-opendata" data-title="React 与 Redux 在生产环境中的实践总结"
+		 data-url="https://lewis617.github.io/2016/11/26/opendata/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

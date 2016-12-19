@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Angular2系列教程（三）Components | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="今天，我们要讲的是ng2的Components。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Angular2系列教程（三）Components">
+<meta property="og:url" content="https://lewis617.github.io/2016/02/16/ng2-component/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="今天，我们要讲的是ng2的Components。">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/83900b4egw1f9xp4nip4hj20d703gt96.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Angular2系列教程（三）Components">
+<meta name="twitter:description" content="今天，我们要讲的是ng2的Components。">
+<meta name="twitter:image" content="https://ws4.sinaimg.cn/large/83900b4egw1f9xp4nip4hj20d703gt96.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ng2-component" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/02/16/ng2-component/" class="article-date">
+  <time datetime="2016-02-16T22:28:00.000Z" itemprop="datePublished">2016-02-17</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      Angular2系列教程（三）Components
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>今天，我们要讲的是ng2的Components。</p>
+<a id="more"></a>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p><img src="https://ws4.sinaimg.cn/large/83900b4egw1f9xp4nip4hj20d703gt96.jpg" alt=""></p>
+<p>这个例子是个老外写的，我将其迁移到ng2 beta版本，想了解迁移的同学可以参考我的做法。</p>
+<p><a href="https://github.com/lewis617/angular2-tutorial/tree/gh-pages/componnets" target="_blank" rel="external">源代码</a></p>
+<h2 id="消失的控制器"><a href="#消失的控制器" class="headerlink" title="消失的控制器"></a>消失的控制器</h2><p>ng2的组件就是ng1中的指令。它包含模板、样式、注入、和选择器。</p>
+<p>组件嵌套组件可以实现类似react的模块化，我曾经也用ng1做过类似的事情</p>
+<p><a href="https://lewis617.github.io/2015/10/01/ng-requirejs-module/">Angular 结合RequireJs实现模块化开发</a></p>
+<p>我当时就想，既然有了指令（ng1）还要什么控制器（ng1）啊！果不其然ng2中移除了控制器，直接用指令也就是ng2的组件来展示界面：</p>
+<p>app/navbar.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123; Component&#125; from <span class="string">'angular2/core'</span>;</div><div class="line"><span class="keyword">import</span> &#123;NgFor&#125; from <span class="string">'angular2/common'</span></div><div class="line"></div><div class="line">@Component(&#123;</div><div class="line">    selector: <span class="string">"navbar"</span>,</div><div class="line">    directives: [NgFor],</div><div class="line">    styles: [<span class="string">`</span></div><div class="line">        li&#123;</div><div class="line">          color: gray;</div><div class="line">        &#125;</div><div class="line">    `],</div><div class="line">    template: <span class="string">`</span></div><div class="line">        &lt;h2&gt;Democratic Party presidential candidates&lt;/h2&gt;</div><div class="line">        &lt;ul&gt;</div><div class="line">        &lt;li *ngFor="#item of items; #i = index"&gt;&#123;&#123;item&#125;&#125; &#123;&#123;i&#125;&#125;&lt;/li&gt;</div><div class="line">        &lt;/ul&gt;</div><div class="line">    `</div><div class="line">&#125;)</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> Navbar &#123;</div><div class="line">    items: <span class="built_in">Array</span>&lt;<span class="built_in">String</span>&gt;</div><div class="line"></div><div class="line">    <span class="keyword">constructor</span>() &#123;</div><div class="line">      <span class="keyword">this</span>.items = [</div><div class="line">        <span class="string">"Hillary Clinton"</span>,</div><div class="line">        <span class="string">"Martin O'Malley"</span>,</div><div class="line">        <span class="string">"Bernie Sanders"</span></div><div class="line">      ]</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ngOnInit() &#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">'[Component] navbar onInit'</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当组件被实例化后，ng2为这个组件创建了一个shadow DOM（Shadow DOM在一个web组件中提供了js,css,template的封装），然后模板和样式被注入进去。</p>
+<p>这段代码做了这些事情：</p>
+<ol>
+<li>设置选择器</li>
+<li>设置<code>directives</code>为<code>[ngFor]</code></li>
+<li>设置样式</li>
+<li>设置模板</li>
+<li>填写类的成员变量<code>items</code></li>
+<li>在构造函数中给<code>items</code>添加数据</li>
+<li>在生命周期的钩子<code>ngOnInit</code>中打印信息</li>
+</ol>
+<p>我们的组件就写好了。</p>
+<h2 id="组件的嵌套"><a href="#组件的嵌套" class="headerlink" title="组件的嵌套"></a>组件的嵌套</h2><p>写好组件后，我们如何将这个组件放在<code>app</code>组件中呢？答案是<code>directives</code>。这里设计得没有react好，react的组件是可以直接用的，ng2的组件则需要以指令的身份注入，因为组件实质也是指令：</p>
+<p>app/app.ts</p>
+<pre><code class="ts"><span class="keyword">import</span> {Component} from <span class="string">'angular2/core'</span>;
+<span class="keyword">import</span> {bootstrap} from <span class="string">'angular2/platform/browser'</span>;
+<span class="keyword">import</span> {Navbar} from <span class="string">'./navbar'</span>;
+
+@Component({
+    selector: <span class="string">"app"</span>,
+    directives:[Navbar],
+    template: <span class="string">`
+      &lt;navbar&gt;&lt;/navbar&gt;
+    `</span>
+})
+<span class="keyword">export</span> <span class="keyword">class</span> App {
+  <span class="keyword">constructor</span>() {
+
+  }
+}
+
+bootstrap(App, [])
+  .catch(err =&gt; <span class="built_in">console</span>.error(err));
+</code></pre>
+<p>ng2中组件和指令都是注入在<code>directives</code>中，<code>directives</code>包含三种类型：</p>
+<ol>
+<li>Components</li>
+<li>Structural directives</li>
+<li>Attribute directives</li>
+</ol>
+<p>关于指令，我们会单独拿出来讲解。</p>
+<h2 id="生命周期钩子"><a href="#生命周期钩子" class="headerlink" title="生命周期钩子"></a>生命周期钩子</h2><p>本例中，我们使用了<code>ngOnInit</code>这个类方法去打印一个信息，这个方法会在组件初始化时候调用。组件存在很多声明周期钩子函数</p>
+<ul>
+<li><p><code>ngOnChanges</code>   </p>
+</li>
+<li><p><code>ngOnInit</code>   </p>
+</li>
+<li><p><code>ngOnDestroy</code>   </p>
+</li>
+<li><p><code>ngDoCheck</code></p>
+</li>
+<li><code>ngAfterContentInit</code></li>
+<li><code>ngAfterContentChecked</code></li>
+<li><code>ngAfterViewInit</code></li>
+<li><code>ngAfterViewChecked</code></li>
+</ul>
+<p><a href="https://angular.io/docs/ts/latest/api/lifecycle_hooks/OnChanges-interface.html" target="_blank" rel="external">Official docs</a></p>
+<hr>
+<h2 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h2><p><a href="https://github.com/lewis617/angular2-tutorial" target="_blank" rel="external">https://github.com/lewis617/angular2-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/02/16/ng2-component/" data-id="ciww39phk000a0i342fcrmnfl"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Angular2/">Angular2</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/02/17/ng2-attribute-directive/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          Angular2系列教程（四）Attribute directives
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/02/15/ng2-temlate/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">Angular2系列教程（二）模板语法</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-ng2-component" data-title="Angular2系列教程（三）Components"
+		 data-url="https://lewis617.github.io/2016/02/16/ng2-component/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

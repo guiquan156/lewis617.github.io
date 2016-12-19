@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>RequireJs调研 | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="背景Problem（问题）
+Web sites are turning into Web apps（网站正转变为网络应用程序）
+Code complexity grows as the site gets bigger（代码复杂度随着站点变大而变复杂）
+Assembly gets harder（组装变得更难【ps】这里我个人认为“组装”是拼接单个js文件中的昂多的代码段 ）
+Developer w">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RequireJs调研">
+<meta property="og:url" content="https://lewis617.github.io/2015/09/26/requirejs-search/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="背景Problem（问题）
+Web sites are turning into Web apps（网站正转变为网络应用程序）
+Code complexity grows as the site gets bigger（代码复杂度随着站点变大而变复杂）
+Assembly gets harder（组装变得更难【ps】这里我个人认为“组装”是拼接单个js文件中的昂多的代码段 ）
+Developer w">
+<meta property="og:image" content="http://images.cnitblog.com/blog/139239/201408/131435005307505.png">
+<meta property="og:image" content="http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/html5/articles/javascript-architecture-requirejs-dependency-management/fig01.png">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9yh3r2e1xj209907zjrt.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.807Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RequireJs调研">
+<meta name="twitter:description" content="背景Problem（问题）
+Web sites are turning into Web apps（网站正转变为网络应用程序）
+Code complexity grows as the site gets bigger（代码复杂度随着站点变大而变复杂）
+Assembly gets harder（组装变得更难【ps】这里我个人认为“组装”是拼接单个js文件中的昂多的代码段 ）
+Developer w">
+<meta name="twitter:image" content="http://images.cnitblog.com/blog/139239/201408/131435005307505.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-requirejs-search" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2015/09/26/requirejs-search/" class="article-date">
+  <time datetime="2015-09-26T03:02:00.000Z" itemprop="datePublished">2015-09-26</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      RequireJs调研
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><h2 id="Problem（问题）"><a href="#Problem（问题）" class="headerlink" title="Problem（问题）"></a>Problem（问题）</h2><ul>
+<li>Web sites are turning into Web apps（网站正转变为网络应用程序）</li>
+<li>Code complexity grows as the site gets bigger（代码复杂度随着站点变大而变复杂）</li>
+<li>Assembly gets harder（组装变得更难【ps】这里我个人认为“组装”是拼接单个js文件中的昂多的代码段 ）</li>
+<li>Developer wants discrete JS files/modules（开发者想分离js文件/模块）</li>
+<li>Deployment wants optimized code in just one or a few HTTP calls（网站部署者想通过使用一个或者很少http请求来优化代码）</li>
+</ul>
+<h2 id="Solution（解决方案）"><a href="#Solution（解决方案）" class="headerlink" title="Solution（解决方案）"></a>Solution（解决方案）</h2><ul>
+<li>Front-end developers need a solution with:（前端工程师需要一个解决方案，拥有这些功能：）</li>
+<li>Some sort of #include/import/require（一些引入文件的命令语句）</li>
+<li>ability to load nested dependencies（加载嵌套的依赖文件）</li>
+<li>ease of use for developer but then backed by an optimization tool that helps deployment（简单好用，但也有助于优化部署） </li>
+</ul>
+<a id="more"></a>
+<h1 id="RequireJs简介"><a href="#RequireJs简介" class="headerlink" title="RequireJs简介"></a>RequireJs简介</h1><h2 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h2><p>RequireJS的目标是鼓励代码的模块化，它使用了不同于传统script标签的脚本加载步骤。可以用它来加速、优化代码，但其主要目的还是为了代码的模块化。它鼓励在使用脚本时以module ID替代URL地址。</p>
+<h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><h3 id="速度快"><a href="#速度快" class="headerlink" title="速度快"></a>速度快</h3><p><img src="http://images.cnitblog.com/blog/139239/201408/131435005307505.png" alt="15085801_CrX1" title="15085801_CrX1"></p>
+<p><a href="http://www.cnblogs.com/powertoolsteam/p/RequireJS_wijmo.html" target="_blank" rel="external">有位网友做了对比测试</a></p>
+<h3 id="依赖关系清晰"><a href="#依赖关系清晰" class="headerlink" title="依赖关系清晰"></a>依赖关系清晰</h3><p><img src="http://wwwimages.adobe.com/content/dam/Adobe/en/devnet/html5/articles/javascript-architecture-requirejs-dependency-management/fig01.png" alt="JavaScript 文件之间的依赖项表示。" title="JavaScript 文件之间的依赖项表示。"></p>
+<p>requirejs通过a.js调用b.js,b.js调用c.js,c.js调用d.js的原理，让我们可以只调用a.js，就可以加载所有的js,而且依赖关系非常清晰。  </p>
+<p>js文件不仅可以调用js，还能调用css和html页面，所以毫不夸张地说，引入一个入口js，无需向 HTML 文件添加任何其他元素即可构建大型单页面应用程序</p>
+<h3 id="鼓励代码模块化（最大优点）"><a href="#鼓励代码模块化（最大优点）" class="headerlink" title="鼓励代码模块化（最大优点）"></a>鼓励代码模块化（最大优点）</h3><p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9yh3r2e1xj209907zjrt.jpg" alt=""></p>
+<p>使用requirejs，我们就需要将原来在一个js文件里面写的代码，按照模块解耦分离成多个js文件，然后按照需求调用。这样做的好处很多：</p>
+<p>解耦了，就不会出现牵一发动全身的情况，便于日后维护；还能便于多人分工合作；还能复用…</p>
+<h1 id="在项目中使用RequireJs"><a href="#在项目中使用RequireJs" class="headerlink" title="在项目中使用RequireJs"></a>在项目中使用RequireJs</h1><h2 id="调用第三方插件"><a href="#调用第三方插件" class="headerlink" title="调用第三方插件"></a>调用第三方插件</h2><h3 id="使用多选插件"><a href="#使用多选插件" class="headerlink" title="使用多选插件"></a>使用多选插件</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">require</span>([<span class="string">'jquery.shiftcheckbox'</span>], <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">           $(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">               $(<span class="string">'#demo2 :checkbox'</span>).shiftcheckbox();</div><div class="line">           &#125;)</div><div class="line">       &#125;)</div></pre></td></tr></table></figure>
+<h3 id="使用’bootstrap’-‘jquery-form’-‘jquery-validate’三个插件"><a href="#使用’bootstrap’-‘jquery-form’-‘jquery-validate’三个插件" class="headerlink" title="使用’bootstrap’, ‘jquery.form’, ‘jquery.validate’三个插件"></a>使用’bootstrap’, ‘jquery.form’, ‘jquery.validate’三个插件</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">require</span>([<span class="string">'bootstrap'</span>, <span class="string">'jquery.form'</span>, <span class="string">'jquery.validate'</span>], <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">    $(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">        jQuery.validator.addMethod(<span class="string">"isZipCode"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">value, element</span>) </span>&#123; <span class="keyword">var</span> tel = <span class="regexp">/^[0-9]&#123;6&#125;$/</span>; <span class="keyword">return</span> <span class="keyword">this</span>.optional(element) || (tel.test(value));</div><div class="line">        &#125;, <span class="string">"请正确填写您的邮政编码"</span>);</div><div class="line">        $(<span class="string">"#signupForm"</span>).validate(&#123;</div><div class="line">            <span class="attr">rules</span>: &#123;</div><div class="line">                <span class="attr">firstname</span>: &#123;</div><div class="line">                    <span class="attr">required</span>: <span class="literal">true</span> &#125;,</div><div class="line">                <span class="attr">email</span>: &#123;</div><div class="line">                    <span class="attr">required</span>: <span class="literal">true</span>,</div><div class="line">                    <span class="attr">email</span>: <span class="literal">true</span> &#125;,</div><div class="line">                <span class="attr">password</span>: &#123;</div><div class="line">                    <span class="attr">required</span>: <span class="literal">true</span>,</div><div class="line">                    <span class="attr">minlength</span>: <span class="number">5</span> &#125;,</div><div class="line">                <span class="attr">confirm_password</span>: &#123;</div><div class="line">                    <span class="attr">required</span>: <span class="literal">true</span>,</div><div class="line">                    <span class="attr">minlength</span>: <span class="number">5</span>,</div><div class="line">                    <span class="attr">equalTo</span>: <span class="string">"#password"</span> &#125;,</div><div class="line">                <span class="attr">isZipCode</span>: &#123;</div><div class="line">                    <span class="attr">isZipCode</span>: <span class="literal">true</span> &#125;</div><div class="line">            &#125;,</div><div class="line">            <span class="attr">messages</span>: &#123;</div><div class="line">                <span class="attr">firstname</span>: <span class="string">"请输入姓名"</span>,</div><div class="line">                <span class="attr">email</span>: &#123;</div><div class="line">                    <span class="attr">required</span>: <span class="string">"请输入Email地址"</span>,</div><div class="line">                    <span class="attr">email</span>: <span class="string">"请输入正确的email地址"</span> &#125;,</div><div class="line">                <span class="attr">password</span>: &#123;</div><div class="line">                    <span class="attr">required</span>: <span class="string">"请输入密码"</span>,</div><div class="line">                    <span class="attr">minlength</span>: jQuery.format(<span class="string">"密码不能小于&#123;0&#125;个字 符"</span>)</div><div class="line">                &#125;,</div><div class="line">                <span class="attr">confirm_password</span>: &#123;</div><div class="line">                    <span class="attr">required</span>: <span class="string">"请输入确认密码"</span>,</div><div class="line">                    <span class="attr">minlength</span>: <span class="string">"确认密码不能小于5个字符"</span>,</div><div class="line">                    <span class="attr">equalTo</span>: <span class="string">"两次输入密码不一致不一致"</span> &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        $(<span class="string">"#signupForm"</span>).ajaxSubmit();</div><div class="line">    &#125;);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h2 id="调用自己写的方法或者类"><a href="#调用自己写的方法或者类" class="headerlink" title="调用自己写的方法或者类"></a>调用自己写的方法或者类</h2><h3 id="调用日期方法类"><a href="#调用日期方法类" class="headerlink" title="调用日期方法类"></a>调用日期方法类</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line"> * Created by lewis on 15-9-15. */</div><div class="line"><span class="comment">//自定义的命名空间，用来对日期进行操作</span></div><div class="line">define([],&#123; <span class="comment">//输入json日期获取年</span></div><div class="line">    getYear: <span class="function"><span class="keyword">function</span> (<span class="params">jsonDate</span>) </span>&#123; <span class="keyword">var</span> dateArry = jsonDate.split(<span class="string">'-'</span>); <span class="keyword">var</span> jsonyear = <span class="built_in">parseInt</span>(dateArry[<span class="number">0</span>]); <span class="keyword">return</span> jsonyear;</div><div class="line">    &#125;, <span class="comment">//输入json日期获取月</span></div><div class="line">    getMonth: <span class="function"><span class="keyword">function</span> (<span class="params">jsonDate</span>) </span>&#123; <span class="keyword">var</span> dateArry = jsonDate.split(<span class="string">'-'</span>); <span class="keyword">var</span> jsonmonth = <span class="built_in">parseInt</span>(dateArry[<span class="number">1</span>]); <span class="keyword">return</span> jsonmonth;</div><div class="line">    &#125;, <span class="comment">//输入json日期获取日</span></div><div class="line">    getDay: <span class="function"><span class="keyword">function</span> (<span class="params">jsonDate</span>) </span>&#123; <span class="keyword">var</span> dateArry = jsonDate.split(<span class="string">'-'</span>); <span class="keyword">var</span> jsonday = <span class="built_in">parseInt</span>(dateArry[<span class="number">2</span>]); <span class="keyword">return</span> jsonday;</div><div class="line">    &#125;, <span class="comment">//输入json日期和日历日期（后面的年）,判断json日期是否在两年内</span></div><div class="line">    isInYear: <span class="function"><span class="keyword">function</span> (<span class="params">jsonDate, calenYear</span>) </span>&#123; <span class="keyword">var</span> jsonArry = jsonDate.split(<span class="string">'-'</span>); <span class="keyword">var</span> jsonyear = <span class="built_in">parseInt</span>(jsonArry[<span class="number">0</span>]); <span class="keyword">if</span> (jsonyear == calenYear || jsonyear == (calenYear - <span class="number">1</span>)) <span class="keyword">return</span> <span class="literal">true</span>; <span class="keyword">else</span></div><div class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;, <span class="comment">//输入json日期和日历日期（年和月），判断json日期是否在日历日期内</span></div><div class="line">    isInMonth: <span class="function"><span class="keyword">function</span> (<span class="params">jsonDate, calendarDate</span>) </span>&#123; <span class="keyword">var</span> jsonArry = jsonDate.split(<span class="string">'-'</span>); <span class="keyword">var</span> jsonyear = <span class="built_in">parseInt</span>(jsonArry[<span class="number">0</span>]); <span class="keyword">var</span> jsonmonth = <span class="built_in">parseInt</span>(jsonArry[<span class="number">1</span>]); <span class="keyword">var</span> calenArry = calendarDate.split(<span class="string">'-'</span>); <span class="keyword">var</span> calenyear = <span class="built_in">parseInt</span>(calenArry[<span class="number">0</span>]); <span class="keyword">var</span> calenmonth = <span class="built_in">parseInt</span>(calenArry[<span class="number">1</span>]); <span class="keyword">if</span> (jsonyear == calenyear &amp;&amp; jsonmonth == calenmonth) <span class="keyword">return</span> <span class="literal">true</span>; <span class="keyword">else</span></div><div class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">getNowFormatDate</span>: <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123; <span class="keyword">var</span> date = <span class="keyword">new</span> <span class="built_in">Date</span>(); <span class="keyword">var</span> seperator = <span class="string">"-"</span>; <span class="keyword">var</span> year = date.getFullYear(); <span class="keyword">var</span> month = date.getMonth() + <span class="number">1</span>; <span class="keyword">var</span> strDate = date.getDate(); <span class="keyword">var</span> currentdate = year + seperator + month + seperator + strDate;</div><div class="line">        <span class="built_in">console</span>.log(currentdate); <span class="keyword">return</span> currentdate;</div><div class="line">    &#125;,</div><div class="line">    <span class="attr">getDateFromYMD</span>: <span class="function"><span class="keyword">function</span> (<span class="params">a</span>) </span>&#123; <span class="keyword">var</span> arr = a.split(<span class="string">"-"</span>); <span class="keyword">var</span> date = <span class="keyword">new</span> <span class="built_in">Date</span>(arr[<span class="number">0</span>], arr[<span class="number">1</span>], arr[<span class="number">2</span>]); <span class="keyword">return</span> date;</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>调用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"> require([&apos;common/myDateClass&apos;], function (myDateClass) &#123;</div><div class="line">。。。</div><div class="line">。。。</div><div class="line">&#125;）</div></pre></td></tr></table></figure>
+<h2 id="调用代码段（任性！！！）"><a href="#调用代码段（任性！！！）" class="headerlink" title="调用代码段（任性！！！）"></a>调用代码段（任性！！！）</h2><p>a.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">myFunctionA</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'a'</span>);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>b.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">myFunctionB</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'b'</span>);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>调用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">require</span>([<span class="string">'js/ab/a'</span>,<span class="string">'ab/b.js'</span>],<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    myFunctionA();</div><div class="line">    myFunctionB();</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2015/09/26/requirejs-search/" data-id="ciww39pjq001r0i34clvs4ejf"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RequireJs/">RequireJs</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2015/09/29/ng-jq-toggle/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          AngularJs与jQuery特效slidetoggle结合
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/09/26/requirejs-bootstraop-modal/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">使用RequireJs和Bootstrap模态框实现表单提交</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-requirejs-search" data-title="RequireJs调研"
+		 data-url="https://lewis617.github.io/2015/09/26/requirejs-search/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

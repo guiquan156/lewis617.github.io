@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Angular2系列教程（七）Injectable、Promise、Interface、使用服务 | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="今天我们要讲的ng2的service这个概念，和ng1一样，service通常用于发送http请求，但其实你可以在里面封装任何你想封装的方法，有时候控制器之间的通讯也是依靠service来完成的，让我们一睹为快！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Angular2系列教程（七）Injectable、Promise、Interface、使用服务">
+<meta property="og:url" content="https://lewis617.github.io/2016/02/28/ng2-service/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="今天我们要讲的ng2的service这个概念，和ng1一样，service通常用于发送http请求，但其实你可以在里面封装任何你想封装的方法，有时候控制器之间的通讯也是依靠service来完成的，让我们一睹为快！">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xnap2tp0j20700k8abd.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xnb0decnj20e103r3z7.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xnb0lqagj20ec035gm5.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Angular2系列教程（七）Injectable、Promise、Interface、使用服务">
+<meta name="twitter:description" content="今天我们要讲的ng2的service这个概念，和ng1一样，service通常用于发送http请求，但其实你可以在里面封装任何你想封装的方法，有时候控制器之间的通讯也是依靠service来完成的，让我们一睹为快！">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xnap2tp0j20700k8abd.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ng2-service" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/02/28/ng2-service/" class="article-date">
+  <time datetime="2016-02-28T21:29:00.000Z" itemprop="datePublished">2016-02-29</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      Angular2系列教程（七）Injectable、Promise、Interface、使用服务
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>今天我们要讲的ng2的service这个概念，和ng1一样，service通常用于发送http请求，但其实你可以在里面封装任何你想封装的方法，有时候控制器之间的通讯也是依靠service来完成的，让我们一睹为快！</p>
+<a id="more"></a>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p>例子是官方的例子，加载一个英雄列表，点击显示详细信息。我直接放在我们的升级后的装备里面。</p>
+<p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9xnap2tp0j20700k8abd.jpg" alt=""></p>
+<p><a href="https://github.com/lewis617/angular2-tutorial/tree/gh-pages/service" target="_blank" rel="external">源代码</a></p>
+<h1 id="Injectable"><a href="#Injectable" class="headerlink" title="Injectable"></a>Injectable</h1><p>在ng2里面如何编写服务呢？非常简单，你只需要写个类即可。那么这个<code>@Injectable()</code>是做什么的？其实单就这个例子来说，我们是不需要写个这个装饰的，因为我们的<code>HeroSerivce</code>没有依赖，如果你要写一个有依赖的服务，那么你需要加上这个<code>@Injectable()</code>，此处加上<code>@Injectable()</code>是可有可无的，但是写上是个好习惯。</p>
+<p>app/hero.service.ts（部分代码）</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">@Injectable()</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> HeroService &#123;</div><div class="line">  getHeroes() &#123;</div><div class="line">    <span class="keyword">return</span> Promise.resolve(HEROES);</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// See the "Take it slow" appendix</span></div><div class="line">  getHeroesSlowly() &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Promise&lt;Hero[]&gt;(resolve =&gt;</div><div class="line">      setTimeout(() =&gt; resolve(HEROES), <span class="number">2000</span>) <span class="comment">// 2 seconds</span></div><div class="line">    );</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上代码我们干了哪些事儿呢？</p>
+<ol>
+<li>写了一个使用<code>injectable</code>装饰的类</li>
+<li>写了两个成员函数</li>
+<li>一个返回一个Promise，直接<code>resolve</code>数据</li>
+<li>另一个也返回一个Promise，不过在两秒后<code>resolve</code>数据</li>
+</ol>
+<p>有的同学会问：<code>resolve</code>的数据哪去了？Promise是什么？我们继续讲解。</p>
+<h1 id="Promise"><a href="#Promise" class="headerlink" title="Promise"></a>Promise</h1><p>如果你玩过ng1，你一定对promise不陌生，因为我们经常在路由里面写<code>resolve</code>，这里就可以接受一个Promise对象。还有ng1中的<code>$q.defer()</code>等等。</p>
+<p>但是promise并不是ng1的专利，你可以在你的任何javascript程序中使用promise，因为在ES6中已经原生提供<a href="https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise" target="_blank" rel="external">Promise对象</a>。你可以查看它的用法，这里我简单描述下：</p>
+<ol>
+<li>构造Promise，只需要在里面加入一个参数，这个参数是个function，这个function可以接受两个参数：<code>resolve</code>, <code>reject</code>。或者使用<code>Promise.resolve()</code>，不过这样没有延迟了。</li>
+<li>使用Promise对象，最常用的方法是<code>then()</code>，里面接受一个function，这个function的参数为<code>resolve</code>的值。除了<code>then()</code>还有<code>catch()</code>等</li>
+</ol>
+<p>为了让大家能够清晰的了解Promise的用法，我们打开chrome的console：</p>
+<p><img src="https://ws2.sinaimg.cn/large/83900b4egw1f9xnb0decnj20e103r3z7.jpg" alt=""></p>
+<ol>
+<li>输入Promise，是个function。</li>
+<li>输入<code>Promise.resolve(&#39;123&#39;)</code>，我们得到一个状态为”已经解决”的promise。</li>
+<li>输入<code>new Promise(resolve=&gt;;resolve(&#39;123&#39;))</code>，我们还是得到一个状态为”已经解决”的promise。</li>
+</ol>
+<p>2和3的区别在于，后者可以在参数的函数中做一些处理，比如延迟或者http请求。</p>
+<p>然后让我们来看Promise的then方法：</p>
+<p><img src="https://ws2.sinaimg.cn/large/83900b4egw1f9xnb0lqagj20ec035gm5.jpg" alt=""></p>
+<ol>
+<li>首先我们写了一个已经<code>resolved</code>的promise，并将其赋值给<code>p</code></li>
+<li>然后使用<code>p.then()</code>，在回调函数里面打印参数，得到<code>&#39;123&#39;</code></li>
+<li>最后<code>p.then()</code>整体返回的是个初始化（pending）的promise。</li>
+</ol>
+<p>现在我们明白一下这个代码中promise的用法了吧？</p>
+<p>app/hero.service.ts（部分代码）</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">@Injectable()</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> HeroService &#123;</div><div class="line">  getHeroes() &#123;</div><div class="line">    <span class="keyword">return</span> Promise.resolve(HEROES);</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// See the "Take it slow" appendix</span></div><div class="line">  getHeroesSlowly() &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Promise&lt;Hero[]&gt;(resolve =&gt;</div><div class="line">      setTimeout(() =&gt; resolve(HEROES), <span class="number">2000</span>) <span class="comment">// 2 seconds</span></div><div class="line">    );</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>那么我们为何要使用promise呢？主要是为了解决回调地狱的问题。因为有了promise，你不必再写深层的回调，而是像极了同步的写法。</p>
+<p>这是我的一个ng1的项目的<a href="https://github.com/lewis617/daily-task/blob/gh-pages/modules/login/ctrl.js" target="_blank" rel="external">部分代码</a>，用promise的<code>then()</code>来解决回调地狱。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">    </div><div class="line">Auth.$createUser(&#123;<span class="attr">email</span>: email, <span class="attr">password</span>: pass&#125;)</div><div class="line">    .then(<span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        <span class="comment">// authenticate so we have permission to write to Firebase</span></div><div class="line">        <span class="keyword">return</span> Auth.$authWithPassword(&#123; <span class="attr">email</span>: email, <span class="attr">password</span>: pass &#125;);</div><div class="line">    &#125;)</div><div class="line">    .then(<span class="function"><span class="keyword">function</span>(<span class="params">user</span>) </span>&#123;</div><div class="line">        <span class="comment">// create a user profile in our data store</span></div><div class="line">        <span class="keyword">var</span> ref = wdutil.ref(<span class="string">'users'</span>, user.uid);</div><div class="line">        <span class="keyword">return</span> wdutil.handler(<span class="function"><span class="keyword">function</span>(<span class="params">cb</span>) </span>&#123;</div><div class="line">            ref.set(&#123;<span class="attr">email</span>: email, <span class="attr">name</span>: $scope.name||firstPartOfEmail(email)&#125;, cb);</div><div class="line">        &#125;);</div><div class="line">    &#125;)</div><div class="line">    .then(<span class="function"><span class="keyword">function</span>(<span class="params"><span class="regexp">/* user */</span></span>) </span>&#123;</div><div class="line">        $scope.wait.show=<span class="literal">false</span>;</div><div class="line">        <span class="comment">// redirect to the account page</span></div><div class="line">        $location.path(<span class="string">'/account'</span>);</div><div class="line">    &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">err</span>) </span>&#123;</div><div class="line">        $scope.wait.show=<span class="literal">false</span>;</div><div class="line">        $scope.alerts.push(&#123;<span class="attr">type</span>:<span class="string">'danger'</span>,<span class="attr">msg</span>:wdutil.errMessage(err)&#125;);</div><div class="line">    &#125;);</div></pre></td></tr></table></figure>
+<h1 id="Interface"><a href="#Interface" class="headerlink" title="Interface"></a>Interface</h1><p>在编写这个服务的过程中我们使用了interface这个概念，这个知识点属于ts的范畴，我们通常在接口中声明类型，有点像react中的propTypes：</p>
+<p>app/hero.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">interface</span> Hero &#123;</div><div class="line">  id: <span class="built_in">number</span>;</div><div class="line">  name: <span class="built_in">string</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后我们在我们的服务中使用了这个接口：</p>
+<p>app/hero.service.ts（部分代码）</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;Hero&#125; from <span class="string">'./hero'</span>;</div></pre></td></tr></table></figure>
+<p>app/hero.service.ts（部分代码）</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">return</span> <span class="keyword">new</span> Promise&lt;Hero[]&gt;(resolve =&gt;</div><div class="line">      setTimeout(() =&gt; resolve(HEROES), <span class="number">2000</span>) <span class="comment">// 2 seconds</span></div><div class="line">    );</div></pre></td></tr></table></figure>
+<p>除此之外，我们在我们的组件里面也多次使用了这个接口：</p>
+<p>app/app.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">heroes: Hero[];</div><div class="line">selectedHero: Hero;</div></pre></td></tr></table></figure>
+<p>app/hero-detail.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> HeroDetailComponent &#123;</div><div class="line">  hero: Hero;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>到此为止，我们的服务就算是写好了！</p>
+<h1 id="使用服务"><a href="#使用服务" class="headerlink" title="使用服务"></a>使用服务</h1><p>让我们在组件中测试一下我们写好的服务吧：</p>
+<p>app/app.component.ts（部分代码）</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">    </div><div class="line"><span class="keyword">import</span> &#123;HeroService&#125; from <span class="string">'./hero.service'</span>;</div><div class="line"></div><div class="line">...</div><div class="line"></div><div class="line">providers: [HeroService]</div><div class="line"></div><div class="line">...</div><div class="line"></div><div class="line"><span class="keyword">constructor</span>(private _heroService: HeroService) &#123; &#125;</div><div class="line"></div><div class="line">  getHeroes() &#123;</div><div class="line">    <span class="keyword">this</span>._heroService.getHeroes().then(heroes =&gt; <span class="keyword">this</span>.heroes = heroes);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>以上代码我们干了这些事儿：</p>
+<ol>
+<li>利用模块系统导入这个服务类</li>
+<li>在组件中注入这个服务</li>
+<li>在构造函数中将这个服务赋给一个私有变量<code>_heroService</code></li>
+<li>然后就可以尽情地在类中使用这个服务对象了<code>this._heroService</code></li>
+</ol>
+<p>这里的<code>getHeroes()</code>返回了一个Promise，所以我们可以使用<code>then</code>来处理接下来要发生的事。</p>
+<hr>
+<h1 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h1><p><a href="https://github.com/lewis617/angular2-tutorial" target="_blank" rel="external">https://github.com/lewis617/angular2-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/02/28/ng2-service/" data-id="ciww39pi7000o0i34cvtuwndb"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Angular2/">Angular2</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/03/20/ng2-http-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          Angular2系列教程（八）In-memory web api、HTTP服务、依赖注入、Observable
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/02/24/ng2-pipe/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">Angular2系列教程（六）两种pipe：函数式编程与面向对象编程</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-ng2-service" data-title="Angular2系列教程（七）Injectable、Promise、Interface、使用服务"
+		 data-url="https://lewis617.github.io/2016/02/28/ng2-service/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

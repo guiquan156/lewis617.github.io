@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Angular2系列教程（九）Jsonp、URLSearchParams、中断选择数据流 | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="大家好，今天我们要讲的是http模块的第二部分，主要学习ng2中Jsonp、URLSearchParams、observable中断选择数据流的用法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Angular2系列教程（九）Jsonp、URLSearchParams、中断选择数据流">
+<meta property="og:url" content="https://lewis617.github.io/2016/03/21/ng2-http-2/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="大家好，今天我们要讲的是http模块的第二部分，主要学习ng2中Jsonp、URLSearchParams、observable中断选择数据流的用法。">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xkroozusj20hl0mwgo5.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Angular2系列教程（九）Jsonp、URLSearchParams、中断选择数据流">
+<meta name="twitter:description" content="大家好，今天我们要讲的是http模块的第二部分，主要学习ng2中Jsonp、URLSearchParams、observable中断选择数据流的用法。">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xkroozusj20hl0mwgo5.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ng2-http-2" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/03/21/ng2-http-2/" class="article-date">
+  <time datetime="2016-03-21T00:54:00.000Z" itemprop="datePublished">2016-03-21</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      Angular2系列教程（九）Jsonp、URLSearchParams、中断选择数据流
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>大家好，今天我们要讲的是http模块的第二部分，主要学习ng2中Jsonp、URLSearchParams、observable中断选择数据流的用法。</p>
+<a id="more"></a>
+<h1 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h1><p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9xkroozusj20hl0mwgo5.jpg" alt=""></p>
+<p>例子的第一个程序，上节课已经讲过了。这节课我们学习第二个程序，从wiki的api中跨域获取数据，可实现300毫秒内中断和选择最近请求等炫酷功能，这些功能都来自于observable！</p>
+<p>运行方法：</p>
+<p>在http目录或者上级目录起个服务即可：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">http-server</div></pre></td></tr></table></figure>
+<p>没有则需要安装http-server：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo  npm install http-server -g</div></pre></td></tr></table></figure>
+<p>源代码：</p>
+<p><a href="https://github.com/lewis617/angular2-tutorial/tree/gh-pages/http" target="_blank" rel="external">https://github.com/lewis617/angular2-tutorial/tree/gh-pages/http</a></p>
+<p>demo演示：</p>
+<p><a href="http://lewis617.github.io/angular2-tutorial/http">http://lewis617.github.io/angular2-tutorial/http</a></p>
+<h1 id="Jsonp"><a href="#Jsonp" class="headerlink" title="Jsonp"></a>Jsonp</h1><p>在讲解observable的api前呢？我们还是把例子的代码给讲解完</p>
+<p>app/wiki/wikipedia.service.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;Injectable&#125; from <span class="string">'angular2/core'</span>;</div><div class="line"><span class="keyword">import</span> &#123;Jsonp, URLSearchParams&#125; from <span class="string">'angular2/http'</span>;</div><div class="line"></div><div class="line">@Injectable()</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> WikipediaService &#123;</div><div class="line">  <span class="keyword">constructor</span>(private jsonp: Jsonp) &#123;&#125;</div><div class="line"></div><div class="line">  search (term: <span class="built_in">string</span>) &#123;</div><div class="line"></div><div class="line">    <span class="keyword">let</span> wikiUrl = <span class="string">'http://en.wikipedia.org/w/api.php'</span>;</div><div class="line"></div><div class="line">    <span class="keyword">var</span> params = <span class="keyword">new</span> URLSearchParams();</div><div class="line">    params.set(<span class="string">'search'</span>, term); <span class="comment">// the user's search value</span></div><div class="line">    params.set(<span class="string">'action'</span>, <span class="string">'opensearch'</span>);</div><div class="line">    params.set(<span class="string">'format'</span>, <span class="string">'json'</span>);</div><div class="line">    params.set(<span class="string">'callback'</span>, <span class="string">'JSONP_CALLBACK'</span>);</div><div class="line"></div><div class="line">    <span class="comment">// <span class="doctag">TODO:</span> Add error handling</span></div><div class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.jsonp</div><div class="line">               .get(wikiUrl, &#123; search: params &#125;)</div><div class="line">               .map(request =&gt; &lt;<span class="built_in">string</span>[]&gt; request.json()[<span class="number">1</span>]);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上代码我们干了几件事：</p>
+<ol>
+<li>导入需要的api</li>
+<li>写一个使用<code>Injectable</code>装饰的类（服务）</li>
+<li>在构造函数中注入<code>Jsonp</code>服务</li>
+<li>编写<code>search</code>成员函数实现获取数据的功能</li>
+</ol>
+<p>这个<code>jsonp</code>服务从何而来？来自</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;JSONP_PROVIDERS&#125; from <span class="string">'angular2/http'</span>;</div></pre></td></tr></table></figure>
+<p>我们将其注入在组件中：</p>
+<p>app/wiki/wiki.component.ts和app/wiki/wiki-smart.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">providers:[JSONP_PROVIDERS, WikipediaService]</div></pre></td></tr></table></figure>
+<p>这样组件中的服务就可以用了！</p>
+<h1 id="URLSearchParams"><a href="#URLSearchParams" class="headerlink" title="URLSearchParams"></a>URLSearchParams</h1><p>然后我们发现我们从</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;Jsonp, URLSearchParams&#125; from <span class="string">'angular2/http'</span>;</div></pre></td></tr></table></figure>
+<p>http中引入了另一个api，<code>URLSearchParams</code>。</p>
+<p>这是什么？用来干嘛？qs大家一定非常熟悉，就是url后面那个 <code>？</code>和 <code>&amp;</code> 。我们的程序也可以这样写：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">    </div><div class="line"><span class="keyword">let</span> queryString =</div><div class="line">  <span class="string">`?search=<span class="subst">$&#123;term&#125;</span>&amp;action=opensearch&amp;format=json&amp;callback=JSONP_CALLBACK`</span></div><div class="line"></div><div class="line"><span class="keyword">return</span> <span class="keyword">this</span>.jsonp</div><div class="line">           .get(wikiUrl + queryString)</div><div class="line">           .map(request =&gt; &lt;<span class="built_in">string</span>[]&gt; request.json()[<span class="number">1</span>]);</div></pre></td></tr></table></figure>
+<p><code>URLSearchParams</code>，可以将qs写成对象，通过调用对象的方法来获取设置其参数，然后给ng2用！像这样需要对象嵌套对象的时候，<code>URLSearchParams</code>就显得非常方便！</p>
+<h1 id="简单监听数据流"><a href="#简单监听数据流" class="headerlink" title="简单监听数据流"></a>简单监听数据流</h1><p>服务写好了，然后我们在组件中调用服务来请求数据吧！首先来个简单的，即每次输入都会发请求：</p>
+<p>app/wiki/wiki.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">items: Observable&lt;<span class="built_in">string</span>[]&gt;;</div><div class="line"></div><div class="line">search (term: <span class="built_in">string</span>) &#123;</div><div class="line">  <span class="keyword">this</span>.items = <span class="keyword">this</span>._wikipediaService.search(term);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们在组件的类中定义了一个<code>items</code>，类型是Observable。然后又写了一个成员函数<code>search</code>用于调用服务获取数据。非常简单，输入的数据在<code>term</code>变量中，被源源不断的输入到服务里面，服务通过调用api，源源不断的返回数据流给observable，我们拿到observable后将其传给<code>items</code>这个observable，然后在模板中渲染出来！</p>
+<p>app/wiki/wiki.component.ts</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;input #term (keyup)="search(term.value)"/&gt;</div><div class="line"></div><div class="line">&lt;ul&gt;</div><div class="line">  &lt;li *ngFor="#item of items | async"&gt;&#123;&#123;item&#125;&#125;&lt;/li&gt;</div><div class="line">&lt;/ul&gt;</div></pre></td></tr></table></figure>
+<p><code>async</code>这个过滤器之前已经讲过不再赘述！</p>
+<h1 id="中断数据流，选择数据流"><a href="#中断数据流，选择数据流" class="headerlink" title="中断数据流，选择数据流"></a>中断数据流，选择数据流</h1><p>让我们来实现更炫酷的功能吧！我们希望不要每个字符输入都请求服务器，我们希望300毫秒以内的字符输入都被中断掉！使用observable就对了，promise可没有这么炫酷的功能！</p>
+<p>app/wiki/wiki-smart.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> _searchTermStream = <span class="keyword">new</span> Subject&lt;<span class="built_in">string</span>&gt;();</div><div class="line"></div><div class="line"> search(term:<span class="built_in">string</span>) &#123; <span class="keyword">this</span>._searchTermStream.next(term); &#125;</div><div class="line"></div><div class="line"> items:Observable&lt;<span class="built_in">string</span>[]&gt; = <span class="keyword">this</span>._searchTermStream</div><div class="line">   .debounceTime(<span class="number">300</span>)</div><div class="line">   .distinctUntilChanged()</div><div class="line">   .switchMap((term:<span class="built_in">string</span>) =&gt; <span class="keyword">this</span>._wikipediaService.search(term));</div></pre></td></tr></table></figure>
+<p>我们在上一个简单的程序基础上增加了一个成员变量<code>searchTermStream</code>，是个<code>Subject</code>类型，这是什么鬼？这是<a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/gettingstarted/subjects.md" target="_blank" rel="external">官方文档。</a></p>
+<p>简单来说，<code>Subject</code>就是用来创建流的，每次我们输入字符，都可以使用<code>searchTermStream</code>的next方法将字符源源不断的添加到<code>searchTermStream</code>中。</p>
+<p>然而这个<code>searchTermStream</code>同时也是observable，我们可以使用<code>debounceTime</code>这个api将数据流的流动频率控制在300毫秒以上，这意味着300毫秒以内输入多次也只能发出一次。</p>
+<p><a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md" target="_blank" rel="external">https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/debounce.md</a></p>
+<p>接着我们使用了<code>distinctUntilChanged</code>这个api用于中断没有改变的情况，比如一个用户先输入”angular”，然后不小心输入了”angularrrrr”，接着他立马按回格键，变成了”angular”，两次都是”angular”，没有发生改变，就会被<code>distinctUntilChanged</code>这个api给中断掉！promise可没有中断功能！非常炫酷！</p>
+<p><a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md" target="_blank" rel="external">https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/distinctuntilchanged.md</a></p>
+<p>好吧，还有更加炫酷的api。我们甚至可以选择最近的一次数据流。使用<code>switchMap</code>就可以做到，新版本被更换成了<a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md" target="_blank" rel="external">flatmaplatest</a>，顾名思义就是选择最后的项，这里指的是最近的请求！</p>
+<p><a href="https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md" target="_blank" rel="external">https://github.com/Reactive-Extensions/RxJS/blob/master/doc/api/core/operators/flatmaplatest.md</a></p>
+<p>observable的api太多了，大家需要可以查询，不再一一讲述：</p>
+<p><a href="https://github.com/Reactive-Extensions/RxJS/tree/master/doc/api/core/operators" target="_blank" rel="external">https://github.com/Reactive-Extensions/RxJS/tree/master/doc/api/core/operators</a></p>
+<hr>
+<h1 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h1><p><a href="https://github.com/lewis617/angular2-tutorial" target="_blank" rel="external">https://github.com/lewis617/angular2-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/03/21/ng2-http-2/" data-id="ciww39phq000f0i34vkq540iu"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Angular2/">Angular2</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/04/04/ng2-router-1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          Angular2系列教程（十）两种启动方法、两个路由服务、引用类型和单例模式的妙用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/03/20/ng2-http-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">Angular2系列教程（八）In-memory web api、HTTP服务、依赖注入、Observable</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-ng2-http-2" data-title="Angular2系列教程（九）Jsonp、URLSearchParams、中断选择数据流"
+		 data-url="https://lewis617.github.io/2016/03/21/ng2-http-2/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

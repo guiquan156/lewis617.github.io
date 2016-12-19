@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>r.js结合gulp等于webpack（angular为例） | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本人大学时玩Dojo，开始了AMD模块化的不归路，工作后一直使用Requirejs，感觉非常好。但是，近来随着React的火热，Webpack成为了天下无敌的模块化工具，能做模块化，合并压缩，监视等，当我看见Webpack甚至还能做反向代理的时候，我整个人都不好了。我已经打算从Requirejs转向Webpack了，在重构以前老代码的时候，我想记录下历史。使用r.js结合gulp同样可以实现Web">
+<meta property="og:type" content="article">
+<meta property="og:title" content="r.js结合gulp等于webpack（angular为例）">
+<meta property="og:url" content="https://lewis617.github.io/2016/01/18/rjs-gulp-webpack/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="本人大学时玩Dojo，开始了AMD模块化的不归路，工作后一直使用Requirejs，感觉非常好。但是，近来随着React的火热，Webpack成为了天下无敌的模块化工具，能做模块化，合并压缩，监视等，当我看见Webpack甚至还能做反向代理的时候，我整个人都不好了。我已经打算从Requirejs转向Webpack了，在重构以前老代码的时候，我想记录下历史。使用r.js结合gulp同样可以实现Web">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.807Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="r.js结合gulp等于webpack（angular为例）">
+<meta name="twitter:description" content="本人大学时玩Dojo，开始了AMD模块化的不归路，工作后一直使用Requirejs，感觉非常好。但是，近来随着React的火热，Webpack成为了天下无敌的模块化工具，能做模块化，合并压缩，监视等，当我看见Webpack甚至还能做反向代理的时候，我整个人都不好了。我已经打算从Requirejs转向Webpack了，在重构以前老代码的时候，我想记录下历史。使用r.js结合gulp同样可以实现Web">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-rjs-gulp-webpack" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/01/18/rjs-gulp-webpack/" class="article-date">
+  <time datetime="2016-01-18T19:46:00.000Z" itemprop="datePublished">2016-01-19</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      r.js结合gulp等于webpack（angular为例）
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>本人大学时玩Dojo，开始了AMD模块化的不归路，工作后一直使用Requirejs，感觉非常好。但是，近来随着React的火热，Webpack成为了天下无敌的模块化工具，能做模块化，合并压缩，监视等，当我看见Webpack甚至还能做反向代理的时候，我整个人都不好了。我已经打算从Requirejs转向Webpack了，在重构以前老代码的时候，我想记录下历史。使用r.js结合gulp同样可以实现Webpack的绝大部分功能。</p>
+<a id="more"></a>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p>源代码地址：<a href="https://github.com/lewis617/daily-task" target="_blank" rel="external">https://github.com/lewis617/daily-task</a></p>
+<p>例子比较弯弯绕，不适合Angular和Requirejs的新手看，但是可以只关注思路。</p>
+<p>写的是一个任务管理系统，包括用户系统，任务的crud等功能。</p>
+<h2 id="组件（components）"><a href="#组件（components）" class="headerlink" title="组件（components）"></a>组件（components）</h2><p>Angular的组件指的是指令、过滤器、服务等，在这个例子中，我自己编写了若干个组件，包括一个延迟加载工具、一个等待指令、一个确认框、一个wilddog工具模块（里面包含了若干个我能用到的服务），都是我平时经常复用的组件，直接复制文件夹过去就能用。</p>
+<p>还包括一些第三方的组件比如，angular-route，angular-ui等，都是直接用bower安装的。跟我自己写的组件原理是一样的哈哈，只不过最后用了一个module打包起来。</p>
+<h2 id="模块（modules）"><a href="#模块（modules）" class="headerlink" title="模块（modules）"></a>模块（modules）</h2><p>就是按页面划分的功能模块，包括登录、主页、账户、任务四个模块。每个模块都包括config路由，controller，html页面等。</p>
+<h2 id="开始打包"><a href="#开始打包" class="headerlink" title="开始打包"></a>开始打包</h2><p>npm install requirejs后可以使用r.js了，我们直接使用r.js命令行工具也可以，但是无法实现监视代码变动的功能，所以我们引入gulp来实现监视功能，其他的合并压缩均使用requirejs来实现。</p>
+<p>gulpfile.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>); <span class="keyword">var</span> rjs = <span class="built_in">require</span>(<span class="string">'requirejs'</span>); <span class="keyword">var</span> paths = &#123;</div><div class="line">  <span class="attr">scripts</span>: [<span class="string">'modules/**/*.js'</span>, <span class="string">'modules/**/**/*.js'</span>,<span class="string">'main.js'</span>]</div><div class="line">&#125;;</div><div class="line"></div><div class="line">gulp.task(<span class="string">'build'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">cb</span>)</span>&#123;</div><div class="line">  rjs.optimize(&#123;</div><div class="line">    <span class="attr">baseUrl</span>: <span class="string">"./"</span>,</div><div class="line">    <span class="attr">mainConfigFile</span>:<span class="string">"./main.js"</span>,</div><div class="line">    <span class="attr">name</span>:<span class="string">'main'</span>,</div><div class="line">    <span class="attr">out</span>:<span class="string">'./dist/build-main.js'</span> &#125;, <span class="function"><span class="keyword">function</span>(<span class="params">buildResponse</span>)</span>&#123; <span class="comment">// console.log('build response', buildResponse);</span></div><div class="line"> cb();</div><div class="line">  &#125;, cb);</div><div class="line">&#125;); <span class="comment">// Rerun the task when a file changes</span></div><div class="line">gulp.task(<span class="string">'watch'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123; <span class="keyword">var</span> watcher = gulp.watch(paths.scripts, [<span class="string">'build'</span>]);</div><div class="line">  watcher.on(<span class="string">'change'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">event</span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'File '</span> + event.path + <span class="string">' was '</span> + event.type + <span class="string">', running tasks...'</span>);</div><div class="line">  &#125;);</div><div class="line">&#125;);</div><div class="line"></div><div class="line">gulp.task(<span class="string">'default'</span>, [<span class="string">'build'</span>,<span class="string">'watch'</span>]);</div></pre></td></tr></table></figure>
+<p>这个gulp配置文件就写了两个任务，一个是<code>build</code>一个是<code>watch</code>。<code>build</code>任务是直接把requirejs的入口文件（main.js）输入，指定输出目录，再指定配置文件（这里也是main.js），就可以合并压缩了。是不是非常简单。</p>
+<p><code>watch</code>任务就是监视代码变动，如果代码改变就自动合并压缩一次。</p>
+<p>那么main.js里面究竟是什么呢？先贴出代码</p>
+<p>main.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="meta">'use strict'</span>;</div><div class="line"><span class="built_in">require</span>.config(&#123;</div><div class="line">    <span class="attr">baseUrl</span>:<span class="string">''</span>,</div><div class="line">    <span class="attr">paths</span>: &#123; <span class="string">'ngRoute'</span>:<span class="string">'bower_components/angular-route/angular-route.min'</span>, <span class="string">'domReady'</span>:<span class="string">'bower_components/domReady/domReady'</span>, <span class="string">'text'</span>:<span class="string">'bower_components/text/text'</span>, <span class="string">'ui-bootstrap'</span> : <span class="string">'bower_components/angular-bootstrap/ui-bootstrap-tpls.min'</span>, <span class="string">'angular-animate'</span>:<span class="string">'bower_components/angular-animate/angular-animate.min'</span>, <span class="string">'routeConfig'</span>:<span class="string">'components/routeConfig'</span> &#125;</div><div class="line">&#125;);</div><div class="line"></div><div class="line"><span class="built_in">require</span>([ <span class="string">'domReady!'</span>, <span class="string">'modules/home/main'</span>, <span class="string">'modules/login/main'</span>, <span class="string">'modules/account/main'</span>, <span class="string">'modules/task/main'</span> ],<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    angular.module(<span class="string">"myApp"</span>, [ <span class="string">"myApp.home"</span>, <span class="string">"myApp.login"</span>, <span class="string">"myApp.account"</span>, <span class="string">'myApp.task'</span> ]).run([<span class="string">'$rootScope'</span>, <span class="string">'Auth'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">$rootScope, Auth</span>) </span>&#123; <span class="comment">// track status of authentication</span></div><div class="line">            Auth.$onAuth(<span class="function"><span class="keyword">function</span>(<span class="params">user</span>) </span>&#123;</div><div class="line">                $rootScope.loggedIn = !!user;</div><div class="line">            &#125;); <span class="comment">//alert列表以及关闭方法</span></div><div class="line">            $rootScope.alerts = [];</div><div class="line">            $rootScope.closeAlert = <span class="function"><span class="keyword">function</span>(<span class="params">index</span>) </span>&#123;</div><div class="line">                $rootScope.alerts.splice(index, <span class="number">1</span>);</div><div class="line">            &#125;;</div><div class="line"></div><div class="line">        &#125;]);</div><div class="line"></div><div class="line">    angular.bootstrap(<span class="built_in">document</span>,[<span class="string">'myApp'</span>]);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>这段代码包含两部分，第一部分是requirejs的配置部分，定义了几个假名而已；第二部分是requirejs的入口部分，主要是先加载一些模块，然后用在主module里面声明以来，最后用run方法，启动一些你需要启动的事件，最后的最后手动启动Angular。</p>
+<h2 id="多米诺骨牌"><a href="#多米诺骨牌" class="headerlink" title="多米诺骨牌"></a>多米诺骨牌</h2><p>本文并不打算写Requirejs，但是可以简单说一下，Requirejs以及其他所有的模块化工具都是一个多米诺骨牌，触发入口文件，继而引入所有的文件。示例程序中的组件和模块就是这样被引入的。将他们封装起来用文件夹打包，在以后的复用过程中，会非常好用！</p>
+<h2 id="比较Webpack"><a href="#比较Webpack" class="headerlink" title="比较Webpack"></a>比较Webpack</h2><p>这些功能Webpack都具备，但是Requirejs是可以不全部合并的，有些文件需要延迟加载，比如Angular程序绝大多数都是SPA ，如果我们一开始就把所有的文件全部合并，势必会造成首次加载速度非常慢，那么如果我们使用Requirejs就可以在改变路由时候延迟加载一些js文件，使得首次加载的js文件体积变小。使用Webpack的话，恐怕不能直接实现这个功能，但是一定有相关的插件或者模块可以实现类似的。期待Webpack，也感谢历史上那些曾经优秀的工具带给我们的便利，让我们程序员的工作更加轻松！</p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/01/18/rjs-gulp-webpack/" data-id="ciww39pjs001u0i34yvjgsou4"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/r-js/">r.js</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/01/19/r2-counter/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          React与Redux教程（一）connect、applyMiddleware、thunk、webpackHotMiddleware
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/01/13/react-reflux/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">React+Reflux入门教程</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-rjs-gulp-webpack" data-title="r.js结合gulp等于webpack（angular为例）"
+		 data-url="https://lewis617.github.io/2016/01/18/rjs-gulp-webpack/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

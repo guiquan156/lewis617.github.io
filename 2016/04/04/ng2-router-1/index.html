@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Angular2系列教程（十）两种启动方法、两个路由服务、引用类型和单例模式的妙用 | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="今天我们要讲的是 ng2 的路由系统。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Angular2系列教程（十）两种启动方法、两个路由服务、引用类型和单例模式的妙用">
+<meta property="og:url" content="https://lewis617.github.io/2016/04/04/ng2-router-1/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="今天我们要讲的是 ng2 的路由系统。">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xkkfl4kwj20bc0a8dgz.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xkkfld1kj20az0cg3zh.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xkkfarv9j20k602l74v.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Angular2系列教程（十）两种启动方法、两个路由服务、引用类型和单例模式的妙用">
+<meta name="twitter:description" content="今天我们要讲的是 ng2 的路由系统。">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xkkfl4kwj20bc0a8dgz.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ng2-router-1" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/04/04/ng2-router-1/" class="article-date">
+  <time datetime="2016-04-04T00:49:00.000Z" itemprop="datePublished">2016-04-04</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      Angular2系列教程（十）两种启动方法、两个路由服务、引用类型和单例模式的妙用
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>今天我们要讲的是 ng2 的路由系统。</p>
+<a id="more"></a>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p><img src="https://ws2.sinaimg.cn/large/83900b4egw1f9xkkfl4kwj20bc0a8dgz.jpg" alt=""></p>
+<p>例子是官网的例子，包含一个”危机中心”和”英雄列表”，都在一个app中，通过路由来控制切换视图。还包含了Promise的用法，服务的用法等多个知识点。</p>
+<p>源代码：</p>
+<p><a href="https://github.com/lewis617/angular2-tutorial/tree/gh-pages/router" target="_blank" rel="external">https://github.com/lewis617/angular2-tutorial/tree/gh-pages/router</a></p>
+<p>运行方法：</p>
+<p>在根目录下运行：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">http-server</div></pre></td></tr></table></figure>
+<h2 id="引入库文件设置base-href"><a href="#引入库文件设置base-href" class="headerlink" title="引入库文件设置base href"></a>引入库文件设置base href</h2><p>路由并不在ng2中，需要我们额外引入，另外我们需要设置base href，这是个什么东西呢？相当于我们后续所有 URL 的”前缀”，因为我们的app默认是基于<a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API#Adding_and_modifying_history_entries" target="_blank" rel="external">HTML 5 pushState</a> 风格的路由，所以我们需要加上base href，来保证当我们导航到深层次的 URL 时候，资源可以被正确加载：</p>
+<p>index.html</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">&lt;!-- Add the router library --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"lib/router.dev.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line"></div><div class="line"><span class="comment">&lt;!-- Set the base href --&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="javascript"><span class="built_in">document</span>.write(<span class="string">'&lt;base href="'</span> + <span class="built_in">document</span>.location + <span class="string">'" /&gt;'</span>);</span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure>
+<h2 id="两种启动方法"><a href="#两种启动方法" class="headerlink" title="两种启动方法"></a>两种启动方法</h2><p>app/main.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;bootstrap&#125;        from <span class="string">'angular2/platform/browser'</span>;</div><div class="line"><span class="keyword">import</span> &#123;ROUTER_PROVIDERS&#125; from <span class="string">'angular2/router'</span>;</div><div class="line"></div><div class="line"><span class="keyword">import</span> &#123;AppComponent&#125;     from <span class="string">'./app.component'</span>;</div><div class="line"></div><div class="line"><span class="comment">// Add these symbols to override the `LocationStrategy`</span></div><div class="line"><span class="comment">//import &#123;provide&#125;           from 'angular2/core';</span></div><div class="line"><span class="comment">//import &#123;LocationStrategy,</span></div><div class="line"><span class="comment">//        HashLocationStrategy&#125; from 'angular2/router';</span></div><div class="line"></div><div class="line">bootstrap(AppComponent, [ROUTER_PROVIDERS,</div><div class="line">  <span class="comment">//provide(LocationStrategy,</span></div><div class="line">  <span class="comment">//       &#123;useClass: HashLocationStrategy&#125;) // .../#/crisis-center/</span></div><div class="line"> ]);</div></pre></td></tr></table></figure>
+<p>这种启动方法采取默认的 <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API#Adding_and_modifying_history_entries" target="_blank" rel="external">HTML 5 pushState</a> 风格，没有#号，但是存在一个弊端。就是当我们在子路经刷新浏览器时候，会出现404的错误。<del>解决办法可以将所有的路由都指向根目录，但是我们使用了http-server，显然不太方便设置。</del> （可以通过设置base href为“/“来解决！）所以还有另外一种风格，就是老式风格，和ng1一样的，带有#的路由风格，它的启动方法是：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;bootstrap&#125;        from <span class="string">'angular2/platform/browser'</span>;</div><div class="line"><span class="keyword">import</span> &#123;ROUTER_PROVIDERS&#125; from <span class="string">'angular2/router'</span>;</div><div class="line"></div><div class="line"><span class="keyword">import</span> &#123;AppComponent&#125;     from <span class="string">'./app.component'</span>;</div><div class="line"></div><div class="line"><span class="comment">// Add these symbols to override the `LocationStrategy`</span></div><div class="line"><span class="keyword">import</span> &#123;provide&#125;           from <span class="string">'angular2/core'</span>;</div><div class="line"><span class="keyword">import</span> &#123;LocationStrategy,</div><div class="line">    HashLocationStrategy&#125; from <span class="string">'angular2/router'</span>;</div><div class="line"></div><div class="line">bootstrap(AppComponent, [ROUTER_PROVIDERS,</div><div class="line">provide(LocationStrategy,</div><div class="line">     &#123;useClass: HashLocationStrategy&#125;) <span class="comment">// .../#/crisis-center/</span></div><div class="line">]);</div></pre></td></tr></table></figure>
+<p>如此一来，我们的app的路由就全部带上#了，当你刷新页面时候，也不会出现404的错误了，但是url的可读性没有 <a href="https://developer.mozilla.org/en-US/docs/Web/API/History_API#Adding_and_modifying_history_entries" target="_blank" rel="external">HTML 5 pushState</a> 风格好看。</p>
+<h2 id="ROUTER-DIRECTIVES、RouteConfig、routerLink、router-outlet"><a href="#ROUTER-DIRECTIVES、RouteConfig、routerLink、router-outlet" class="headerlink" title="ROUTER_DIRECTIVES、RouteConfig、routerLink、router-outlet"></a>ROUTER_DIRECTIVES、RouteConfig、routerLink、router-outlet</h2><p>路由的编写很简单，我们只需要在我们的组件中进行配置就行了：</p>
+<p>app/app.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;Component&#125; from <span class="string">'angular2/core'</span>;</div><div class="line"><span class="keyword">import</span> &#123;RouteConfig, ROUTER_DIRECTIVES&#125; from <span class="string">'angular2/router'</span>;</div><div class="line"></div><div class="line"><span class="keyword">import</span> &#123;CrisisCenterComponent&#125; from <span class="string">'./crisis-center/crisis-center.component'</span>;</div><div class="line"><span class="keyword">import</span> &#123;HeroListComponent&#125;     from <span class="string">'./heroes/hero-list.component'</span>;</div><div class="line"><span class="keyword">import</span> &#123;HeroDetailComponent&#125;   from <span class="string">'./heroes/hero-detail.component'</span>;</div><div class="line"></div><div class="line"><span class="keyword">import</span> &#123;DialogService&#125;         from <span class="string">'./dialog.service'</span>;</div><div class="line"><span class="keyword">import</span> &#123;HeroService&#125;           from <span class="string">'./heroes/hero.service'</span>;</div><div class="line"></div><div class="line">@Component(&#123;</div><div class="line">  selector: <span class="string">'my-app'</span>,</div><div class="line">  template: <span class="string">`</span></div><div class="line">    &lt;h1 class="title"&gt;Component Router&lt;/h1&gt;</div><div class="line">    &lt;nav&gt;</div><div class="line">      &lt;a [routerLink]="['CrisisCenter']"&gt;Crisis Center&lt;/a&gt;</div><div class="line">      &lt;a [routerLink]="['Heroes']"&gt;Heroes&lt;/a&gt;</div><div class="line">    &lt;/nav&gt;</div><div class="line">    &lt;router-outlet&gt;&lt;/router-outlet&gt;</div><div class="line">  `,</div><div class="line">  providers:  [DialogService, HeroService],</div><div class="line">  directives: [ROUTER_DIRECTIVES]</div><div class="line">&#125;)</div><div class="line">@RouteConfig([</div><div class="line"></div><div class="line">  &#123; <span class="comment">// Crisis Center child route</span></div><div class="line">    path: <span class="string">'/crisis-center/...'</span>,</div><div class="line">    name: <span class="string">'CrisisCenter'</span>,</div><div class="line">    component: CrisisCenterComponent,</div><div class="line">    useAsDefault: <span class="literal">true</span></div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  &#123;path: <span class="string">'/heroes'</span>,   name: <span class="string">'Heroes'</span>,     component: HeroListComponent&#125;,</div><div class="line">  &#123;path: <span class="string">'/hero/:id'</span>, name: <span class="string">'HeroDetail'</span>, component: HeroDetailComponent&#125;,</div><div class="line">  &#123;path: <span class="string">'/disaster'</span>, name: <span class="string">'Asteroid'</span>, redirectTo: [<span class="string">'CrisisCenter'</span>, <span class="string">'CrisisDetail'</span>, &#123;id:<span class="number">3</span>&#125;]&#125;</div><div class="line">])</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> AppComponent &#123; &#125;</div></pre></td></tr></table></figure>
+<p>上述代码我们干了几件事：</p>
+<ol>
+<li>写了一个组件，包含一个<code>h1</code>，一个<code>nav</code>里面包含两个<code>a</code>，还有一个<code>router-outlet</code>组件</li>
+<li>注入了两个服务，<code>DialogService</code>, <code>HeroService</code>（这一步不属于路由构建步骤）</li>
+<li>注入了一个指令，<code>ROUTER_DIRECTIVES</code></li>
+<li>使用<code>@RouteConfig</code>，配置子路径和对应的子组件，当/crisis-center/时候，在<code>router-outlet</code>中显示<code>CrisisCenterComponent</code>组件，当/heroes时候，在<code>router-outlet</code>中显示<code>HeroListComponent</code>组件，以此类推</li>
+<li>当导航到/disaster，重定向到<code>CrisisCenter</code>的<code>CrisisDetail</code>视图。<code>CrisisCenter</code>, <code>CrisisDetail</code>是父子视图关系，下面会讲到。</li>
+<li>导出这个组件</li>
+</ol>
+<p>好了我们的带有路由的组件编写好了，其实就是个可以切换视图的组件而已，就是这么简单。我们在浏览器中运行程序，点击<code>nav</code>中的heroes，就可以把子视图<code>Heroes</code>渲染出来了。</p>
+<p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9xkkfld1kj20az0cg3zh.jpg" alt=""></p>
+<p>浏览器路径变为</p>
+<p><a href="http://localhost:63342/angular2-tutorial/router/index.html/heroes" target="_blank" rel="external">http://localhost:63342/angular2-tutorial/router/index.html/heroes</a></p>
+<p>在原有的基础上加上了/heroes。</p>
+<h2 id="温习promise"><a href="#温习promise" class="headerlink" title="温习promise"></a>温习promise</h2><p>当我们导航到heroes视图的时候，我们就进入了另一个子组件，这个组件需要一个heroes服务，里面用到了Promise，我们在<a href="https://lewis617.github.io/2016/02/28/ng2-service/">Angular2系列教程（七）Injectable、Promise、Interface、使用服务</a>讲过Promise，然我们来温习Promise：</p>
+<p>app/heroes/hero.service.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;Injectable&#125; from <span class="string">'angular2/core'</span>;</div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> Hero &#123;</div><div class="line">  <span class="keyword">constructor</span>(public id: number, public name: string) &#123; &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">@Injectable()</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> HeroService &#123;</div><div class="line">  getHeroes() &#123; <span class="keyword">return</span> heroesPromise; &#125;</div><div class="line"></div><div class="line">  getHero(id: <span class="built_in">number</span> | <span class="built_in">string</span>) &#123;</div><div class="line">    <span class="keyword">return</span> heroesPromise</div><div class="line">      .then(heroes =&gt; heroes.filter(h =&gt; h.id === +id)[<span class="number">0</span>]);</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">var</span> HEROES = [</div><div class="line">    <span class="keyword">new</span> Hero(<span class="number">11</span>, <span class="string">'Mr. Nice'</span>),</div><div class="line">    <span class="keyword">new</span> Hero(<span class="number">12</span>, <span class="string">'Narco'</span>),</div><div class="line">    <span class="keyword">new</span> Hero(<span class="number">13</span>, <span class="string">'Bombasto'</span>),</div><div class="line">    <span class="keyword">new</span> Hero(<span class="number">14</span>, <span class="string">'Celeritas'</span>),</div><div class="line">    <span class="keyword">new</span> Hero(<span class="number">15</span>, <span class="string">'Magneta'</span>),</div><div class="line">    <span class="keyword">new</span> Hero(<span class="number">16</span>, <span class="string">'RubberMan'</span>)</div><div class="line">];</div><div class="line"></div><div class="line"><span class="keyword">var</span> heroesPromise = Promise.resolve(HEROES);</div></pre></td></tr></table></figure>
+<p>以上代码我们干了几件事：</p>
+<ol>
+<li>写了一个<code>Hero</code>类</li>
+<li><p>写了一个<code>HeroService</code>类，包含两个成员函数</p>
+</li>
+<li><p>写了一个数组<code>HEROES</code>，里面每一项都是一个<code>hero</code>类的实例，也就是个对象（引用类型）</p>
+</li>
+<li>定义了一个<code>heroesPromise</code>，将<code>value</code>设为数组<code>HEROES</code>，状态为<code>resolved</code>，随时可以使用<code>then</code>来获取<code>value</code>，也就是数组<code>HEROES</code></li>
+</ol>
+<p>温习Promise，Promise的两种构建方法：</p>
+<ol>
+<li><code>Promise.resolve()</code></li>
+<li><code>new Promise()</code>，里面是个function，该function的参数是resolve和reject。</li>
+</ol>
+<p>例子（chrome console）：</p>
+<p><img src="https://ws2.sinaimg.cn/large/83900b4egw1f9xkkfarv9j20k602l74v.jpg" alt=""></p>
+<p>更详细的的用法，可以看我之前讲的Promise：<a href="https://lewis617.github.io/2016/02/28/ng2-service/">Angular2系列教程（七）Injectable、Promise、Interface、使用服务</a> 。</p>
+<h2 id="两个服务：Router、RouteParams"><a href="#两个服务：Router、RouteParams" class="headerlink" title="两个服务：Router、RouteParams"></a>两个服务：Router、RouteParams</h2><p>我们的英雄服务写好了，然我们继续看英雄列表组件，当我们想要点击列表的某一项的时候，我们需要一个参数来导航到指定的英雄详情视图，这时候我们就需要<code>RouteParams</code>了，导航这个动作出发则需要<code>Router</code>服务：</p>
+<p>app/heroes/hero-list.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">    </div><div class="line"></div><div class="line"><span class="comment">// TODO SOMEDAY: Feature Componetized like CrisisCenter</span></div><div class="line"><span class="keyword">import</span> &#123;Component, OnInit&#125;   from <span class="string">'angular2/core'</span>;</div><div class="line"><span class="keyword">import</span> &#123;Hero, HeroService&#125;   from <span class="string">'./hero.service'</span>;</div><div class="line"><span class="keyword">import</span> &#123;Router, RouteParams&#125; from <span class="string">'angular2/router'</span>;</div><div class="line"></div><div class="line">@Component(&#123;</div><div class="line">  template: <span class="string">`</span></div><div class="line">    &lt;h2&gt;HEROES&lt;/h2&gt;</div><div class="line">    &lt;ul class="items"&gt;</div><div class="line">      &lt;li *ngFor="#hero of heroes"</div><div class="line">        [class.selected]="isSelected(hero)"</div><div class="line">        (click)="onSelect(hero)"&gt;</div><div class="line">        &lt;span class="badge"&gt;&#123;&#123;hero.id&#125;&#125;&lt;/span&gt; &#123;&#123;hero.name&#125;&#125;</div><div class="line">      &lt;/li&gt;</div><div class="line">    &lt;/ul&gt;</div><div class="line">  `</div><div class="line">&#125;)</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> HeroListComponent <span class="keyword">implements</span> OnInit &#123;</div><div class="line">  heroes: Hero[];</div><div class="line"></div><div class="line">  <span class="keyword">private</span> _selectedId: <span class="built_in">number</span>;</div><div class="line"></div><div class="line">  <span class="keyword">constructor</span>(</div><div class="line">    private _service: HeroService,</div><div class="line">    private _router: Router,</div><div class="line">    routeParams: RouteParams) &#123;</div><div class="line">      <span class="keyword">this</span>._selectedId = +routeParams.get(<span class="string">'id'</span>);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  isSelected(hero: Hero) &#123; <span class="keyword">return</span> hero.id === <span class="keyword">this</span>._selectedId; &#125;</div><div class="line"></div><div class="line">  onSelect(hero: Hero) &#123;</div><div class="line">    <span class="keyword">this</span>._router.navigate( [<span class="string">'HeroDetail'</span>, &#123; id: hero.id &#125;] );</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  ngOnInit() &#123;</div><div class="line">    <span class="keyword">this</span>._service.getHeroes().then(heroes =&gt; <span class="keyword">this</span>.heroes = heroes)</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上代码，我们干了几件事：</p>
+<ol>
+<li>渲染一个组件，包括一个列表</li>
+<li>在构造函数中，将英雄服务<code>HeroService</code>、路由服务<code>Router</code>、路由参数<code>RouteParams</code>传给私有变量</li>
+<li>写了三个成员函数用于处理相应的业务逻辑</li>
+<li>其中<code>this._router.navigate( [&#39;HeroDetail&#39;, { id: hero.id }] );</code>将<code>app</code>导航到了<code>HeroDetail</code>视图，并带上<code>id</code>参数</li>
+<li>其中<code>this._service.getHeroes().then(heroes =&amp;gt; this.heroes = heroes)</code>，用于获取刚才的<code>heroes</code>数组，并将其传给<code>this.heroes</code></li>
+</ol>
+<p><code>Router</code>服务的使用：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>._router.navigate( [<span class="string">'HeroDetail'</span>, &#123; id: hero.id &#125;] );</div></pre></td></tr></table></figure>
+<p><code>RouteParams</code>服务的使用：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>._selectedId = +routeParams.get(<span class="string">'id'</span>);</div></pre></td></tr></table></figure>
+<p>其中<code>routeParams.get(&#39;id&#39;)</code>前面那个<code>+</code>代表将其转换为数字类型。</p>
+<p><code>HeroService</code>服务的使用：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>._service.getHeroes().then(heroes =&gt;; <span class="keyword">this</span>.heroes = heroes)</div></pre></td></tr></table></figure>
+<h2 id="引用类型和单例模式的妙用"><a href="#引用类型和单例模式的妙用" class="headerlink" title="引用类型和单例模式的妙用"></a>引用类型和单例模式的妙用</h2><p>我们继续看英雄详细视图：</p>
+<p>app/heroes/hero-detail.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;Component,  OnInit&#125;  from <span class="string">'angular2/core'</span>;</div><div class="line"><span class="keyword">import</span> &#123;Hero, HeroService&#125;   from <span class="string">'./hero.service'</span>;</div><div class="line"><span class="keyword">import</span> &#123;RouteParams, Router&#125; from <span class="string">'angular2/router'</span>;</div><div class="line"></div><div class="line">@Component(&#123;</div><div class="line">  template: <span class="string">`</span></div><div class="line">  &lt;h2&gt;HEROES&lt;/h2&gt;</div><div class="line">  &lt;div *ngIf="hero"&gt;</div><div class="line">    &lt;h3&gt;"&#123;&#123;hero.name&#125;&#125;"&lt;/h3&gt;</div><div class="line">    &lt;div&gt;</div><div class="line">      &lt;label&gt;Id: &lt;/label&gt;&#123;&#123;hero.id&#125;&#125;&lt;/div&gt;</div><div class="line">    &lt;div&gt;</div><div class="line">      &lt;label&gt;Name: &lt;/label&gt;</div><div class="line">      &lt;input [(ngModel)]="hero.name" placeholder="name"/&gt;</div><div class="line">    &lt;/div&gt;</div><div class="line">    &lt;p&gt;</div><div class="line">      &lt;button (click)="gotoHeroes()"&gt;Back&lt;/button&gt;</div><div class="line">    &lt;/p&gt;</div><div class="line">  &lt;/div&gt;</div><div class="line">  `,</div><div class="line">&#125;)</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> HeroDetailComponent <span class="keyword">implements</span> OnInit  &#123;</div><div class="line">  hero: Hero;</div><div class="line"></div><div class="line">  <span class="keyword">constructor</span>(</div><div class="line">    private _router:Router,</div><div class="line">    private _routeParams:RouteParams,</div><div class="line">    private _service:HeroService)&#123;&#125;</div><div class="line"></div><div class="line">  ngOnInit() &#123;</div><div class="line">    <span class="keyword">let</span> id = <span class="keyword">this</span>._routeParams.get(<span class="string">'id'</span>);</div><div class="line">    <span class="keyword">this</span>._service.getHero(id).then(hero =&gt; <span class="keyword">this</span>.hero = hero);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  gotoHeroes() &#123;</div><div class="line">    <span class="keyword">let</span> heroId = <span class="keyword">this</span>.hero ? <span class="keyword">this</span>.hero.id : <span class="literal">null</span>;</div><div class="line">    <span class="comment">// Pass along the hero id if available</span></div><div class="line">    <span class="comment">// so that the HeroList component can select that hero.</span></div><div class="line">    <span class="comment">// Add a totally useless `foo` parameter for kicks.</span></div><div class="line">    <span class="keyword">this</span>._router.navigate([<span class="string">'Heroes'</span>,  &#123;id: heroId, foo: <span class="string">'foo'</span>&#125; ]);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码，我们仅仅是获取指定的英雄信息，并渲染出来。那么修改英雄信息是如何实现的呢？就是通过引用类型实现的。</p>
+<p>我们知道，在js中，对象和数组是引用类型，也就意味着，当我们将某个对象传给别的变量的时候，仅仅是将对象的地址传给了那个变量，当我们修改那个变量时候，其实对象也被修改了。<br>在这个程序中，我们将<code>hero</code>对象传给<code>this.hero</code>，并将其双向数据绑定到<code>input</code>上：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;input [(ngModel)]=<span class="string">"hero.name"</span> placeholder=<span class="string">"name"</span>/&gt;</div></pre></td></tr></table></figure>
+<p>这样当我们改变<code>input</code>的值的时候，<code>this.hero</code>被改变，服务中的<code>hero</code>也被改变，因为是引用类型嘛，其实操作的都是一个对象。再有我们的服务是单例模式，所以全局的<code>hero</code>列表都被改变了。</p>
+<p>让我们改变<code>input</code>的值，并点击back，我们发现英雄列表视图中的数据也被改变了，这就是引用类型和单例模式的妙用。</p>
+<h2 id="Route-Parameters-or-Query-Parameters"><a href="#Route-Parameters-or-Query-Parameters" class="headerlink" title="Route Parameters or Query Parameters?"></a>Route Parameters or Query Parameters?</h2><p>当我们点击back返回时候，我们发现URL变成了：</p>
+<p><a href="http://localhost:63342/angular2-tutorial/router/index.html/heroes?id=11&amp;foo=foo" target="_blank" rel="external">http://localhost:63342/angular2-tutorial/router/index.html/heroes?id=11&amp;foo=foo</a></p>
+<p>也就是拥有了Query Parameters：<code>?id=11&amp;amp;foo=foo</code>。</p>
+<p>为何会这样呢？因为我们指定了参数：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>._router.navigate([<span class="string">'Heroes'</span>, &#123;id: heroId, foo: <span class="string">'foo'</span>&#125;]);</div></pre></td></tr></table></figure>
+<p>但是英雄列表视图有没有指定的<code>id</code>和<code>foo</code>的token，所以这两个变量是可选的，所以就自动生成了Query Parameters，好让我们进行select的css重绘。</p>
+<p>在英雄详细视图中，我们使用了：<code>id</code>这个token。</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&#123;path: <span class="string">'/hero/:id'</span>, name: <span class="string">'HeroDetail'</span>, component: HeroDetailComponent&#125;</div></pre></td></tr></table></figure>
+<p>这就是Route Parameters。它是必须的，我们必须要指定id这个参数。这就是Route Parameters 和 Query Parameters的比较。</p>
+<p>这节课我们先讲到这里，下节课我们通过”危机中心”这个例子，继续讲解路由，将包含路由的嵌套、路由的生命周期等众多炫酷功能！</p>
+<hr>
+<h2 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h2><p><a href="https://github.com/lewis617/angular2-tutorial" target="_blank" rel="external">https://github.com/lewis617/angular2-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/04/04/ng2-router-1/" data-id="ciww39phu000i0i34xvojxohn"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Angular2/">Angular2</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/04/04/ng2-router-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          Angular2系列教程（十一）路由嵌套、路由生命周期、matrix URL notation
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/03/21/ng2-http-2/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">Angular2系列教程（九）Jsonp、URLSearchParams、中断选择数据流</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-ng2-router-1" data-title="Angular2系列教程（十）两种启动方法、两个路由服务、引用类型和单例模式的妙用"
+		 data-url="https://lewis617.github.io/2016/04/04/ng2-router-1/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

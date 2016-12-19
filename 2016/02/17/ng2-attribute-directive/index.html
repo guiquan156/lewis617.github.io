@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Angular2系列教程（四）Attribute directives | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="今天我们要讲的是ng2的Attribute directives。顾名思义，就是拓展dom属性的指令。这算是指令的第二课了，因为上节课的components实质也是指令。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Angular2系列教程（四）Attribute directives">
+<meta property="og:url" content="https://lewis617.github.io/2016/02/17/ng2-attribute-directive/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="今天我们要讲的是ng2的Attribute directives。顾名思义，就是拓展dom属性的指令。这算是指令的第二课了，因为上节课的components实质也是指令。">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xosknpxcj206d05odg4.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Angular2系列教程（四）Attribute directives">
+<meta name="twitter:description" content="今天我们要讲的是ng2的Attribute directives。顾名思义，就是拓展dom属性的指令。这算是指令的第二课了，因为上节课的components实质也是指令。">
+<meta name="twitter:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xosknpxcj206d05odg4.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ng2-attribute-directive" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/02/17/ng2-attribute-directive/" class="article-date">
+  <time datetime="2016-02-17T19:05:00.000Z" itemprop="datePublished">2016-02-18</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      Angular2系列教程（四）Attribute directives
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>今天我们要讲的是ng2的Attribute directives。顾名思义，就是拓展dom属性的指令。这算是指令的第二课了，因为上节课的components实质也是指令。</p>
+<a id="more"></a>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9xosknpxcj206d05odg4.jpg" alt=""></p>
+<p>这个例子共两个指令，第一个是redify指令，能使元素的color属性变红。另外一个直接复制官网的highlight指令，但是我自己做了很多变化，来讲解写法的多样化。</p>
+<p><a href="https://github.com/lewis617/angular2-tutorial/tree/gh-pages/directives" target="_blank" rel="external">源代码</a></p>
+<h2 id="Directive"><a href="#Directive" class="headerlink" title="@Directive"></a>@Directive</h2><p>写指令，你需要从<code>&#39;angular2/core&#39;</code>中导入<code>Directive</code>，然后使用<code>@Directive</code>装饰器去装饰一个类：</p>
+<p>app/directives.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;Directive, ElementRef, Renderer&#125; from <span class="string">'angular2/core'</span>;</div><div class="line"></div><div class="line">@Directive(&#123;</div><div class="line">  selector: <span class="string">'[redify]'</span></div><div class="line">&#125;)</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> Redify &#123;</div><div class="line"></div><div class="line">  <span class="keyword">constructor</span>(private _element: ElementRef, private renderer: Renderer) &#123;</div><div class="line">      renderer.setElementStyle(_element.nativeElement, <span class="string">'color'</span>, <span class="string">'red'</span>);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码做了这些事：</p>
+<ol>
+<li>在装饰器<code>@Directive</code>中定义选择器<code>redify</code></li>
+<li>在类<code>Redify</code>中的构造函数里面注入<code>ElementRef</code>，来获取当前的dom元素</li>
+<li>同样注入<code>Renderer</code>服务来操作dom，使其<code>color</code>属性为红色</li>
+</ol>
+<p>服务是可以注入指令的。<code>Renderer</code>服务提供了多种操作dom样式的方法。</p>
+<p><a href="https://angular.io/docs/ts/latest/api/core/ElementRef-class.html" target="_blank" rel="external">Official docs for ElementRef</a></p>
+<p><a href="https://angular.io/docs/ts/latest/api/core/Renderer-class.html" target="_blank" rel="external">Official docs for Renderer</a></p>
+<h2 id="事件监听"><a href="#事件监听" class="headerlink" title="事件监听"></a>事件监听</h2><p>如何实现指令的事件监听呢？答案是设置<code>host</code>：</p>
+<p>src/app/highlight.directive.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">host: &#123;</div><div class="line">  <span class="string">'(mouseenter)'</span>: <span class="string">'onMouseEnter()'</span>,</div><div class="line">  <span class="string">'(mouseleave)'</span>: <span class="string">'onMouseLeave()'</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们在<code>@Directive</code>中设置<code>host</code>元数据，<code>host</code>是个对象，你可以通过<code>host</code>配置指令的事件监听，当事件发生，将触发相应的成员函数。本例子中，设置了鼠标进入和离开两个鼠标事件。并在类中编写相应的成员函数：</p>
+<p>src/app/highlight.directive.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">onMouseEnter() &#123; <span class="keyword">this</span>._highlight(<span class="keyword">this</span>.highlightColor || <span class="keyword">this</span>._defaultColor); &#125;</div><div class="line">onMouseLeave() &#123; <span class="keyword">this</span>._highlight(<span class="literal">null</span>); &#125;</div></pre></td></tr></table></figure>
+<h2 id="Input"><a href="#Input" class="headerlink" title="@Input"></a>@Input</h2><p>如果需要向指令中输入什么，那么需要<code>@input</code>这个装饰器，从<code>&#39;angular2/core&#39;</code>中导入<code>Input</code>即可使用：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">@Input(<span class="string">'myHighlight'</span>) highlightColor: <span class="built_in">string</span>;</div><div class="line"></div><div class="line"><span class="keyword">private</span> _defaultColor = <span class="string">'red'</span>;</div><div class="line">@Input() <span class="keyword">set</span> defaultColor(colorName:<span class="built_in">string</span>)&#123;</div><div class="line">  <span class="keyword">this</span>._defaultColor = colorName || <span class="keyword">this</span>._defaultColor;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码我们做了几件事：</p>
+<ol>
+<li>给成员变量<code>highlightColor</code>，装饰一个<code>@Input(&#39;myHighlight&#39;)</code>，使其等于从<code>myHighlight</code>输入的属性</li>
+<li>设置一个私有成员变量<code>_defaultColor</code></li>
+<li><p><code>defaultColor</code>属性有个<code>setter</code>，可以重写<code>_defaultColor</code>变量，使<code>_defaultColor</code>等于从<code>defaultColor</code>属性输入的值或者其本身默认值</p>
+<p>这都什么鬼？没有接触过装饰器的同学可能觉得不舒服。这是es7里面的语法糖，python里面也有，是一种函数式编程。装饰器实质是个函数，可以多个嵌套装饰。</p>
+</li>
+</ol>
+<p>指令的<code>@Input</code>装饰器，有两种写法：</p>
+<p>一就是给成员变量加个装饰器：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">@Input(<span class="string">'myHighlight'</span>) </div><div class="line">highlightColor: <span class="built_in">string</span>;</div></pre></td></tr></table></figure>
+<p>代表从<code>myHighlight</code>属性输入的值会赋给成员变量<code>highlightColor</code>。</p>
+<p>二就是使用<code>set</code>，编写一个函数，重写相关的成员变量，不明白<code>get</code> 和<code>set</code> 用法的同学可以参考这个：</p>
+<ul>
+<li><a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Functions/get" target="_blank" rel="external">getters</a></li>
+<li><a href="https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Functions/set" target="_blank" rel="external">setters</a></li>
+</ul>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> _defaultColor = <span class="string">'red'</span>;</div><div class="line">@Input() <span class="keyword">set</span> defaultColor(colorName:<span class="built_in">string</span>)&#123;</div><div class="line">  <span class="keyword">this</span>._defaultColor = colorName || <span class="keyword">this</span>._defaultColor;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们来两个替换一下把：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> highlightColor:<span class="built_in">string</span>;</div><div class="line">@Input() <span class="keyword">set</span> myHighlight(colorName:<span class="built_in">string</span>)&#123;</div><div class="line">  <span class="keyword">this</span>.highlightColor=colorName</div><div class="line">&#125;</div><div class="line"></div><div class="line">@Input(<span class="string">'defaultColor'</span>)</div><div class="line"><span class="keyword">private</span> _defaultColor = <span class="string">'red'</span>;</div></pre></td></tr></table></figure>
+<p>仍然可以运行！</p>
+<h2 id="使用指令"><a href="#使用指令" class="headerlink" title="使用指令"></a>使用指令</h2><p>导入指令的类，然后注入组件的<code>directives</code>中<code>[Redify,HighlightDirective]</code>，就可以在模板中使用指令了，这跟组件嵌套是一样的。</p>
+<p>app/app.ts</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">import &#123;Component&#125; from 'angular2/core';</div><div class="line">import &#123;bootstrap&#125; from 'angular2/platform/browser';</div><div class="line">import &#123;Redify&#125; from './directives';</div><div class="line">import &#123;HighlightDirective&#125; from './highlight.directive';</div><div class="line"></div><div class="line">@Component(&#123;</div><div class="line">    selector: "app",</div><div class="line">    directives:[Redify,HighlightDirective],</div><div class="line">    template: `</div><div class="line">    redify:</div><div class="line">      &lt;p redify &gt;hello,lewis&lt;/p&gt;</div><div class="line">     myHighlight:</div><div class="line">        &lt;div&gt;</div><div class="line">          &lt;input type="radio" name="colors" (click)="color='lightgreen'"&gt;Green</div><div class="line">          &lt;input type="radio" name="colors" (click)="color='yellow'"&gt;Yellow</div><div class="line">          &lt;input type="radio" name="colors" (click)="color='cyan'"&gt;Cyan</div><div class="line">        &lt;/div&gt;</div><div class="line">      &lt;p [myHighlight]="color"&gt;Highlight me!&lt;/p&gt;</div><div class="line">      &lt;p [myHighlight]="color" [defaultColor]="'violet'"&gt;Highlight me too!&lt;/p&gt;</div><div class="line">    `</div><div class="line">&#125;)</div><div class="line">export class App &#123;</div><div class="line">    constructor() &#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">bootstrap(App, [])</div><div class="line">    .catch(err =&gt; console.error(err));</div><div class="line">    </div><div class="line">```                    </div><div class="line"></div><div class="line">我们可以看到`&lt;p redify &gt;hello,lewis&lt;/p&gt;`，`redify`指令就是元素的一个属性而已。</div><div class="line"></div><div class="line">而`highlight`则使用了`[]`</div><div class="line"></div><div class="line">```ts</div><div class="line">&lt;p [myHighlight]="color"&gt;Highlight me!&lt;/p&gt;</div><div class="line">&lt;p [myHighlight]="color" [defaultColor]="'violet'"&gt;Highlight me too!&lt;/p&gt;</div></pre></td></tr></table></figure>
+<p>我们在模板语法里面讲过，[]是单向属性绑定的语法，里面可以是任何hmtl5属性，当然也可以是我们拓展的html属性，即指令。毕竟angular仍然是”旨在拓展html能力”。</p>
+<p><code>[myHighlight]=&quot;color&quot;</code>将成员变量<code>color</code>绑定在<code>myHighlight</code>属性中，<code>[defaultColor]=&quot;&#39;violet&#39;&quot;</code>给<code>defaultColor</code>设置了<code>&#39;violet&#39;</code>的值。</p>
+<hr>
+<h2 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h2><p><a href="https://github.com/lewis617/angular2-tutorial" target="_blank" rel="external">https://github.com/lewis617/angular2-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/02/17/ng2-attribute-directive/" data-id="ciww39phb00070i341ezlphv4"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Angular2/">Angular2</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/02/19/ng2-structural-directive/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          Angular2系列教程（五）Structural directives、再谈组件生命周期
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/02/16/ng2-component/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">Angular2系列教程（三）Components</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-ng2-attribute-directive" data-title="Angular2系列教程（四）Attribute directives"
+		 data-url="https://lewis617.github.io/2016/02/17/ng2-attribute-directive/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>React与Redux教程（四）undo、devtools、router | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="上节课，我们介绍了一些es6的新语法：React与Redux教程（三）reduce()、filter()、map()、some()、every()、…展开属性
+今天我们通过解读redux-undo的官方示例代码来学习，在Redux中使用撤销功能、devtools功能、以及router。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React与Redux教程（四）undo、devtools、router">
+<meta property="og:url" content="https://lewis617.github.io/2016/01/26/r2-undo/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="上节课，我们介绍了一些es6的新语法：React与Redux教程（三）reduce()、filter()、map()、some()、every()、…展开属性
+今天我们通过解读redux-undo的官方示例代码来学习，在Redux中使用撤销功能、devtools功能、以及router。">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/83900b4egw1f9xt46iemmg20q50ks41w.gif">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.807Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React与Redux教程（四）undo、devtools、router">
+<meta name="twitter:description" content="上节课，我们介绍了一些es6的新语法：React与Redux教程（三）reduce()、filter()、map()、some()、every()、…展开属性
+今天我们通过解读redux-undo的官方示例代码来学习，在Redux中使用撤销功能、devtools功能、以及router。">
+<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/83900b4egw1f9xt46iemmg20q50ks41w.gif">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-r2-undo" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/01/26/r2-undo/" class="article-date">
+  <time datetime="2016-01-26T19:39:00.000Z" itemprop="datePublished">2016-01-27</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      React与Redux教程（四）undo、devtools、router
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>上节课，我们介绍了一些es6的新语法：<a href="https://lewis617.github.io/2016/01/21/r2-array/">React与Redux教程（三）reduce()、filter()、map()、some()、every()、…展开属性</a></p>
+<p>今天我们通过解读redux-undo的官方示例代码来学习，在Redux中使用撤销功能、devtools功能、以及router。</p>
+<a id="more"></a>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p><img src="https://ws3.sinaimg.cn/large/83900b4egw1f9xt46iemmg20q50ks41w.gif" alt=""></p>
+<p>这个例子是个计数器程序，包含计数器、右边的Redux开发工具、还有一个路由（不过只有”/“这一个地址）。</p>
+<p>源代码：</p>
+<p><a href="https://github.com/lewis617/react-redux-tutorial/tree/master/redux-undo-boilerplate" target="_blank" rel="external">https://github.com/lewis617/react-redux-tutorial/tree/master/redux-undo-boilerplate</a></p>
+<h2 id="撤销"><a href="#撤销" class="headerlink" title="撤销"></a>撤销</h2><p>实现撤销功能非常简单，你只需要使你的reducers可以撤销就可以了。这是什么意思呢？看代码</p>
+<p>reducers/index.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123; combineReducers &#125; <span class="keyword">from</span> <span class="string">'redux'</span></div><div class="line"><span class="keyword">import</span> counter <span class="keyword">from</span> <span class="string">'./counter'</span></div><div class="line"><span class="keyword">import</span> &#123;</div><div class="line">  INCREMENT_COUNTER, DECREMENT_COUNTER,</div><div class="line">  UNDO_COUNTER, REDO_COUNTER</div><div class="line">&#125; <span class="keyword">from</span> <span class="string">'../actions/counter'</span></div><div class="line"><span class="keyword">import</span> undoable, &#123; includeAction &#125; <span class="keyword">from</span> <span class="string">'redux-undo'</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> rootReducer = combineReducers(&#123;</div><div class="line">  <span class="attr">counter</span>: undoable(counter, &#123;</div><div class="line">    <span class="attr">filter</span>: includeAction([INCREMENT_COUNTER, DECREMENT_COUNTER]),</div><div class="line">    <span class="attr">limit</span>: <span class="number">10</span>,</div><div class="line">    <span class="attr">debug</span>: <span class="literal">true</span>,</div><div class="line">    <span class="attr">undoType</span>: UNDO_COUNTER,</div><div class="line">    <span class="attr">redoType</span>: REDO_COUNTER</div><div class="line">  &#125;)</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> rootReducer</div></pre></td></tr></table></figure>
+<p>我们使用<code>redux-undo</code>这个包给我们提供的<code>undoable</code>和<code>includeAction</code>，就可以可以给指定reducer（counter）添加撤销功能。<code>filter</code>是选择过滤的action有哪些，这里我们只撤销重做加减action，也就是<code>INCREMENT_COUNTER</code>, <code>DECREMENT_COUNTER</code>，  <code>limit</code>是次数限制，<code>debug</code>是是否调试码，<code>undotype</code>和<code>redotype</code>是撤销重做的action。</p>
+<p>如此以来，我只需要触发撤销重做的action便可以实现撤销重做功能，就是这么简单！</p>
+<h2 id="devtools"><a href="#devtools" class="headerlink" title="devtools"></a>devtools</h2><p>接下来，我们开始学习使用devtools这个功能，devtools是什么？devtools的实质其实也是组件。devtools能干什么？devtools可以帮助我们看到整个程序的状态和整个程序的触发的action的日志记录。我们如何安装devtools呢？首先，我们知道devtools是个组件，那么我们直接把devtools放在容器中渲染出来不就可以了吗？</p>
+<p>containers/DevTools.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*eslint-disable*/</span></div><div class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></div><div class="line"><span class="keyword">import</span> &#123; createDevTools &#125; <span class="keyword">from</span> <span class="string">'redux-devtools'</span></div><div class="line"><span class="keyword">import</span> LogMonitor <span class="keyword">from</span> <span class="string">'redux-devtools-log-monitor'</span></div><div class="line"><span class="keyword">import</span> DockMonitor <span class="keyword">from</span> <span class="string">'redux-devtools-dock-monitor'</span></div><div class="line"><span class="comment">/*eslint-enable*/</span></div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> createDevTools(</div><div class="line">  <span class="xml"><span class="tag">&lt;<span class="name">DockMonitor</span> <span class="attr">toggleVisibilityKey</span>=<span class="string">"H"</span></span></span></div><div class="line">               <span class="attr">changePositionKey</span>=<span class="string">"Q"</span>&gt;</div><div class="line">    <span class="tag">&lt;<span class="name">LogMonitor</span> /&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">DockMonitor</span>&gt;</span></div><div class="line">)</div></pre></td></tr></table></figure>
+<p>这是一个可以复用的容器代码，也就意味着，你可以直接把这个js文件，复制粘贴到你的项目中。这段代码我们输出了一个devtools组件。</p>
+<p>containers/Root.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/* global __DEVTOOLS__ */</span></div><div class="line"><span class="comment">/*eslint-disable*/</span></div><div class="line"><span class="keyword">import</span> React, &#123; Component, PropTypes &#125; <span class="keyword">from</span> <span class="string">'react'</span></div><div class="line"><span class="keyword">import</span> &#123; Provider &#125; <span class="keyword">from</span> <span class="string">'react-redux'</span></div><div class="line"><span class="keyword">import</span> &#123; Router &#125; <span class="keyword">from</span> <span class="string">'react-router'</span></div><div class="line"><span class="keyword">import</span> configureStore <span class="keyword">from</span> <span class="string">'../store/configureStore'</span></div><div class="line"><span class="keyword">import</span> routes <span class="keyword">from</span> <span class="string">'../routes'</span></div><div class="line"><span class="comment">/*eslint-enable*/</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> store = configureStore()</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">createElements</span> (<span class="params">history</span>) </span>&#123;</div><div class="line">  <span class="keyword">const</span> elements = [</div><div class="line">    &lt;Router key="router" history=&#123;history&#125; children=&#123;routes&#125; /&gt;</div><div class="line">  ]</div><div class="line"></div><div class="line">  if (typeof __DEVTOOLS__ !== 'undefined' &amp;&amp; __DEVTOOLS__) &#123;</div><div class="line">    /*eslint-disable*/</div><div class="line">    const DevTools = require('./DevTools')</div><div class="line">    /*eslint-enable*/</div><div class="line">    elements.push(&lt;DevTools key="devtools" /&gt;)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  return elements</div><div class="line">&#125;</div><div class="line"></div><div class="line">export default class Root extends Component &#123;</div><div class="line"></div><div class="line">  static propTypes = &#123;</div><div class="line">    history: PropTypes.object.isRequired</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  render () &#123;</div><div class="line">    return (</div><div class="line">      &lt;Provider store=&#123;store&#125; key="provider"&gt;</div><div class="line">        &lt;div&gt;</div><div class="line">          &#123;createElements(this.props.history)&#125;</div><div class="line">        &lt;/div&gt;</div><div class="line">      &lt;/Provider&gt;</div><div class="line">    )</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码，我们将我们导出的devtools组件放在了<code>router</code>这个组件的下面，不过我们加了一个<code>typeof DEVTOOLS !==&#39;undefined&#39; &amp;&amp; DEVTOOLS</code>的判断，如果条件成立，我们将渲染devtools，否则不渲染。这样做，意味着我们可以通过参数控制devtools在开发环境中显示，在生产环境中不显示。</p>
+<p>是不是渲染出来，就可以了？当然不是！我们还需要在<code>store</code>里面注册！</p>
+<p>store/configureStore.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/* global __DEVTOOLS__ */</span></div><div class="line"><span class="keyword">import</span> &#123; createStore, applyMiddleware, compose &#125; <span class="keyword">from</span> <span class="string">'redux'</span></div><div class="line"><span class="comment">// reducer</span></div><div class="line"><span class="keyword">import</span> rootReducer <span class="keyword">from</span> <span class="string">'../reducers'</span></div><div class="line"><span class="comment">// middleware</span></div><div class="line"><span class="keyword">import</span> thunkMiddleware <span class="keyword">from</span> <span class="string">'redux-thunk'</span></div><div class="line"><span class="keyword">import</span> promiseMiddleware <span class="keyword">from</span> <span class="string">'redux-promise'</span></div><div class="line"><span class="keyword">import</span> createLogger <span class="keyword">from</span> <span class="string">'redux-logger'</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> loggerMiddleware = createLogger(&#123;</div><div class="line">  <span class="attr">level</span>: <span class="string">'info'</span>,</div><div class="line">  <span class="attr">collapsed</span>: <span class="literal">true</span></div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="keyword">const</span> enforceImmutableMiddleware = <span class="built_in">require</span>(<span class="string">'redux-immutable-state-invariant'</span>)()</div><div class="line"></div><div class="line"><span class="keyword">let</span> createStoreWithMiddleware</div><div class="line"></div><div class="line"><span class="keyword">if</span> (<span class="keyword">typeof</span> __DEVTOOLS__ !== <span class="string">'undefined'</span> &amp;&amp; __DEVTOOLS__) &#123;</div><div class="line">  <span class="keyword">const</span> &#123; persistState &#125; = <span class="built_in">require</span>(<span class="string">'redux-devtools'</span>)</div><div class="line">  <span class="keyword">const</span> DevTools = <span class="built_in">require</span>(<span class="string">'../containers/DevTools'</span>)</div><div class="line">  createStoreWithMiddleware = compose(</div><div class="line">    applyMiddleware(</div><div class="line">      enforceImmutableMiddleware,</div><div class="line">      thunkMiddleware,</div><div class="line">      promiseMiddleware,</div><div class="line">      loggerMiddleware</div><div class="line">    ),</div><div class="line">    DevTools.instrument(),</div><div class="line">    persistState(<span class="built_in">window</span>.location.href.match(<span class="regexp">/[?&amp;]debug_session=([^&amp;]+)\b/</span>))</div><div class="line">  )(createStore)</div><div class="line">&#125; <span class="keyword">else</span> &#123;</div><div class="line">  createStoreWithMiddleware = compose(</div><div class="line">    applyMiddleware(thunkMiddleware, promiseMiddleware)</div><div class="line">  )(createStore)</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">/**</span></div><div class="line"> * Creates a preconfigured store.</div><div class="line"> */</div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">configureStore</span> (<span class="params">initialState</span>) </span>&#123;</div><div class="line">  <span class="keyword">const</span> store = createStoreWithMiddleware(rootReducer, initialState)</div><div class="line"></div><div class="line">  <span class="keyword">if</span> (<span class="built_in">module</span>.hot) &#123;</div><div class="line">    <span class="comment">// Enable Webpack hot module replacement for reducers</span></div><div class="line">    <span class="built_in">module</span>.hot.accept(<span class="string">'../reducers'</span>, () =&gt; &#123;</div><div class="line">      <span class="keyword">const</span> nextRootReducer = <span class="built_in">require</span>(<span class="string">'../reducers/index'</span>)</div><div class="line">      store.replaceReducer(nextRootReducer)</div><div class="line">    &#125;)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">return</span> store</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>到此为止，devtools我们就安装好了，就是这么简单！把它渲染出来就可以了，可以放在整个程序的下面就可以了！</p>
+<h2 id="store-enhancer"><a href="#store-enhancer" class="headerlink" title="store enhancer"></a>store enhancer</h2><p><code>DevTools.instrument()</code> 这行代码使得devtools可以使用了！有的同学会问，这个<code>instrument()</code>是什么鬼？官方称之为store enhancer，翻译过来就是store加强器，跟<code>applymiddleware</code>是一类，都是store加强器。那么store加强器，能干什么？store加强器可以重新构建一个更牛逼的store，来替换之前的基础版的store，让你的程序可以增加很多别的功能，比如<code>appllymiddleware</code>可以给你的Redux增加中间件，使之可以拥有异步功能，日志功能等！</p>
+<h2 id="enforceImmutableMiddleware-thunkMiddleware-promiseMiddleware-loggerMiddleware"><a href="#enforceImmutableMiddleware-thunkMiddleware-promiseMiddleware-loggerMiddleware" class="headerlink" title="enforceImmutableMiddleware,thunkMiddleware, promiseMiddleware, loggerMiddleware"></a>enforceImmutableMiddleware,thunkMiddleware, promiseMiddleware, loggerMiddleware</h2><p>有的同学会问，<code>enforceImmutableMiddleware</code>是什么？干嘛用的？这个使用禁止你改变state的。什么？不改变state，我们如何更新状态，Redux不允许你改变state，在reducer中我们必须要返回一个新的state，而不是修改原来的state！</p>
+<p>那个<code>thunk</code>是什么？<code>thunk</code>我们已经在<a href="https://lewis617.github.io/2016/01/19/r2-counter/">React与Redux教程（一）connect、applyMiddleware、thunk、webpackHotMiddleware</a>里面讲过了。</p>
+<p>那么什么是<code>promiseMiddleware</code>？这也是个中间件，和<code>thunk</code>一样，使得你的action可以具备异步的功能。不过，我们可以发现，本例中我们并没有用到<code>thunk</code>和<code>promiseMiddleware</code>这两个中间件，本例子是个种子文件，可以在这个基础上拓展，所以作者提前写好了两个常用中间件，便于我们日后使用！</p>
+<p>那么<code>loggerMiddleware</code>是用来干嘛的？顾名思义，就是用来记录日志的，当你添加这个中间件，你可以在命令行中看到相关的打印日志！当然你可以在运行程序的时候，去掉这个中间件，来对比观察它的作用！</p>
+<h2 id="instrument-与compose-写法"><a href="#instrument-与compose-写法" class="headerlink" title="instrument()与compose()写法"></a>instrument()与compose()写法</h2><p><code>instrument()</code>不同于<code>applymiddleware</code>，它只能用于开发环境，只能enable你的devtools组件！那么我们把<code>applymiddleware</code>和<code>instrument</code>用逗号隔开，为什么？这是compose写法，用来代替以前的函数嵌套！</p>
+<h2 id="Router"><a href="#Router" class="headerlink" title="Router"></a>Router</h2><p>简单来说，Router也是个组件，一个多重视图的组件，这个组件可以通过切换URL来切换视图，总之它还是个组件。既然是组件，我们只要把它渲染出来就可以了！</p>
+<p>最顶层我们要渲染一个<code>Router</code>, 代码在containers/Root.js中，我们就不重复列出代码清单了。</p>
+<p>然后我们开始渲染各个视图，这里我们只有一个视图，也就是目录是”/“的视图，我们把它渲染出来！</p>
+<p>routes.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*eslint-disable*/</span></div><div class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></div><div class="line"><span class="keyword">import</span> &#123; Route &#125; <span class="keyword">from</span> <span class="string">'react-router'</span></div><div class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./containers/App'</span></div><div class="line"><span class="keyword">import</span> * <span class="keyword">as</span> containers <span class="keyword">from</span> <span class="string">'./containers'</span></div><div class="line"><span class="comment">/*eslint-enable*/</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> &#123;</div><div class="line">  CounterPage</div><div class="line">&#125; = containers</div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> (</div><div class="line">  <span class="xml"><span class="tag">&lt;<span class="name">Route</span> <span class="attr">component</span>=<span class="string">&#123;App&#125;</span>&gt;</span></span></div><div class="line">    <span class="tag">&lt;<span class="name">Route</span> <span class="attr">path</span>=<span class="string">"/"</span> <span class="attr">component</span>=<span class="string">&#123;CounterPage&#125;</span> /&gt;</span></div><div class="line">  <span class="tag">&lt;/<span class="name">Route</span>&gt;</span></div><div class="line">)</div></pre></td></tr></table></figure>
+<p>我们导出了一个视图，这个视图的组件是<code>CounterPage</code>。就是这么简单！</p>
+<p>然后，我们在containers/Root.js，将它渲染到<code>Router</code>组件里面就可以了！</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;Router key=<span class="string">"router"</span> history=&#123;history&#125; children=&#123;routes&#125; /&gt;</div></pre></td></tr></table></figure>
+<p>我们可以发现，我们并没有把devtools这个组件放在路由组件里面。这意味着，无论你如何切换视图，devtools都一直会渲染出来！</p>
+<p>当然react-router的api还有很多，我们只是用了很少一部分，我不建议专门阅读api文档，应该在项目中，遇到不会的查询api文档，这样对api的用法的理解会更加的深刻！</p>
+<hr>
+<h2 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h2><p><a href="https://github.com/lewis617/react-redux-tutorial" target="_blank" rel="external">https://github.com/lewis617/react-redux-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/01/26/r2-undo/" data-id="ciww39pje001h0i34vj2xr9zt"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redux/">Redux</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/01/29/r2-async/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          React与Redux教程（五）异步、单一state树结构、componentWillReceiveProps
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/01/21/r2-array/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">React与Redux教程（三）reduce()、filter()、map()、some()、every()、...展开属性</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-r2-undo" data-title="React与Redux教程（四）undo、devtools、router"
+		 data-url="https://lewis617.github.io/2016/01/26/r2-undo/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

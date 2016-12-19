@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>React与Redux教程（五）异步、单一state树结构、componentWillReceiveProps | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="今天，我们要讲解的是异步、单一state树结构、componentWillReceiveProps这三个知识点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React与Redux教程（五）异步、单一state树结构、componentWillReceiveProps">
+<meta property="og:url" content="https://lewis617.github.io/2016/01/29/r2-async/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="今天，我们要讲解的是异步、单一state树结构、componentWillReceiveProps这三个知识点。">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xsvlmvplg20q50ksq8j.gif">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/83900b4egw1f9xsvkmvlfj20ks07zq5d.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/83900b4egw1f9xsvkl9lkj20qx06ngoi.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/83900b4egw1f9xsvkukugj20qr089wis.jpg">
+<meta property="og:image" content="https://ws4.sinaimg.cn/large/83900b4egw1f9xsvkukugj20qr089wis.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.807Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React与Redux教程（五）异步、单一state树结构、componentWillReceiveProps">
+<meta name="twitter:description" content="今天，我们要讲解的是异步、单一state树结构、componentWillReceiveProps这三个知识点。">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xsvlmvplg20q50ksq8j.gif">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-r2-async" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/01/29/r2-async/" class="article-date">
+  <time datetime="2016-01-29T20:18:00.000Z" itemprop="datePublished">2016-01-30</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      React与Redux教程（五）异步、单一state树结构、componentWillReceiveProps
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>今天，我们要讲解的是异步、单一state树结构、componentWillReceiveProps这三个知识点。</p>
+<a id="more"></a>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p><img src="https://ws2.sinaimg.cn/large/83900b4egw1f9xsvlmvplg20q50ksq8j.gif" alt=""></p>
+<p>这个例子是官方的例子，主要是从Reddit中请求新闻列表来显示，可以切换react和frontend关键词来切换新闻列表，可以刷新当前新闻列表。</p>
+<p>源代码：</p>
+<p><a href="https://github.com/lewis617/react-redux-tutorial/tree/master/redux-examples/async" target="_blank" rel="external">https://github.com/lewis617/react-redux-tutorial/tree/master/redux-examples/async</a></p>
+<h2 id="异步"><a href="#异步" class="headerlink" title="异步"></a>异步</h2><p>异步本身 这个概念，本文不详细叙述，但可以简单说一下，Javascript是通过自身的”事件循环（event loop）”机制来实现异步的，将耗时的IO等操作跳过，当事件完成后再发个信号过来执行回调。这使得单线程的js变的非常高效，这也是为什么<br>Nodejs在多并发场景下特别牛逼的原因。</p>
+<p>Redux只能实现同步操作，但是可以通过thunk中间件实现异步。thunk的作用看<a href="https://lewis617.github.io/2016/01/19/r2-counter/">React与Redux教程（一）connect、applyMiddleware、thunk、webpackHotMiddleware</a></p>
+<p><strong><em>主要的异步操作（ajax请求）均在action中进行。</em></strong></p>
+<p>本例子的异步操作在<code>fetchPosts</code>中，就是使用<code>fetch</code>这个方法，进行ajax请求，然后使用promise进行完成后的回调操作。看代码：</p>
+<p>actions/index.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> fetch <span class="keyword">from</span> <span class="string">'isomorphic-fetch'</span></div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> REQUEST_POSTS = <span class="string">'REQUEST_POSTS'</span></div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> RECEIVE_POSTS = <span class="string">'RECEIVE_POSTS'</span></div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> SELECT_REDDIT = <span class="string">'SELECT_REDDIT'</span></div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> INVALIDATE_REDDIT = <span class="string">'INVALIDATE_REDDIT'</span></div><div class="line"><span class="comment">//选择新闻类型action</span></div><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">selectReddit</span>(<span class="params">reddit</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> &#123;</div><div class="line">    <span class="attr">type</span>: SELECT_REDDIT,</div><div class="line">    reddit</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//废弃新闻类型action</span></div><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">invalidateReddit</span>(<span class="params">reddit</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> &#123;</div><div class="line">    <span class="attr">type</span>: INVALIDATE_REDDIT,</div><div class="line">    reddit</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//开始获取新闻action</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">requestPosts</span>(<span class="params">reddit</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> &#123;</div><div class="line">    <span class="attr">type</span>: REQUEST_POSTS,</div><div class="line">    reddit</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//获取新闻成功的action</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">receivePosts</span>(<span class="params">reddit, json</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> &#123;</div><div class="line">    <span class="attr">type</span>: RECEIVE_POSTS,</div><div class="line">    <span class="attr">reddit</span>: reddit,</div><div class="line">    <span class="attr">posts</span>: json.data.children.map(<span class="function"><span class="params">child</span> =&gt;</span> child.data),</div><div class="line">    <span class="attr">receivedAt</span>: <span class="built_in">Date</span>.now()</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//获取文章，先触发requestPosts开始获取action，完成后触发receivePosts获取成功的action</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">fetchPosts</span>(<span class="params">reddit</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function"><span class="params">dispatch</span> =&gt;</span> &#123;</div><div class="line">    dispatch(requestPosts(reddit))</div><div class="line">    <span class="keyword">return</span> fetch(<span class="string">`https://www.reddit.com/r/<span class="subst">$&#123;reddit&#125;</span>.json`</span>)</div><div class="line">      .then(<span class="function"><span class="params">response</span> =&gt;</span> response.json())</div><div class="line">      .then(<span class="function"><span class="params">json</span> =&gt;</span> dispatch(receivePosts(reddit, json)))</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//是否需要获取文章</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">shouldFetchPosts</span>(<span class="params">state, reddit</span>) </span>&#123;</div><div class="line">  <span class="keyword">const</span> posts = state.postsByReddit[reddit]</div><div class="line">  <span class="keyword">if</span> (!posts) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="literal">true</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">if</span> (posts.isFetching) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="literal">false</span></div><div class="line">  &#125;</div><div class="line">  <span class="keyword">return</span> posts.didInvalidate</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//如果需要则开始获取文章</span></div><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">fetchPostsIfNeeded</span>(<span class="params">reddit</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">dispatch, getState</span>) =&gt;</span> &#123;</div><div class="line">    <span class="keyword">if</span> (shouldFetchPosts(getState(), reddit)) &#123;</div><div class="line">      <span class="keyword">return</span> dispatch(fetchPosts(reddit))</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>异步这个概念比较简单，不再赘述了。</p>
+<h2 id="单一state树结构"><a href="#单一state树结构" class="headerlink" title="单一state树结构"></a>单一state树结构</h2><p>单一state树结构是Redux的最大特点。我们今天主要讲解state的树结构长什么样？首先，我们可以通过React的chrome插件，来看下这个state树：</p>
+<p><img src="https://ws3.sinaimg.cn/large/83900b4egw1f9xsvkmvlfj20ks07zq5d.jpg" alt=""></p>
+<p>我们点击Connect(App)，可以查看整个程序的state树，但是这棵树是从storeState开始的。我们在第一课中讲到，只能通过Redux的devtools来查看全局单一state，其实是片面的，通过React的chrome插件同样可以看到这棵树。</p>
+<p>那么这棵树为什么长这个样子，我们是如何构建这棵树的呢？答案都在reducer里面：</p>
+<p>reducers/index.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123; combineReducers &#125; <span class="keyword">from</span> <span class="string">'redux'</span></div><div class="line"><span class="keyword">import</span> &#123;</div><div class="line">  SELECT_REDDIT, INVALIDATE_REDDIT,</div><div class="line">  REQUEST_POSTS, RECEIVE_POSTS</div><div class="line">&#125; <span class="keyword">from</span> <span class="string">'../actions'</span></div><div class="line"></div><div class="line"><span class="comment">//选择新闻后，将state.selectedReddit设为所选选项</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">selectedReddit</span>(<span class="params">state = <span class="string">'reactjs'</span>, action</span>) </span>&#123;</div><div class="line">  <span class="keyword">switch</span> (action.type) &#123;</div><div class="line">    <span class="keyword">case</span> SELECT_REDDIT:</div><div class="line">      <span class="keyword">return</span> action.reddit</div><div class="line">    <span class="keyword">default</span>:</div><div class="line">      <span class="keyword">return</span> state</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">posts</span>(<span class="params">state = &#123;</span></span></div><div class="line">  <span class="regexp">//</span>是否正在获取最新</div><div class="line">  isFetching: false,</div><div class="line">  <span class="regexp">//</span>是否废弃</div><div class="line">  didInvalidate: false,</div><div class="line">  <span class="regexp">//</span>内容</div><div class="line">  items: []</div><div class="line">&#125;, action) &#123;</div><div class="line">  <span class="keyword">switch</span> (action.type) &#123;</div><div class="line">    <span class="keyword">case</span> INVALIDATE_REDDIT:</div><div class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>.assign(&#123;&#125;, state, &#123;</div><div class="line">        <span class="attr">didInvalidate</span>: <span class="literal">true</span></div><div class="line">      &#125;)</div><div class="line">    <span class="keyword">case</span> REQUEST_POSTS:</div><div class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>.assign(&#123;&#125;, state, &#123;</div><div class="line">        <span class="attr">isFetching</span>: <span class="literal">true</span>,</div><div class="line">        <span class="attr">didInvalidate</span>: <span class="literal">false</span></div><div class="line">      &#125;)</div><div class="line">    <span class="keyword">case</span> RECEIVE_POSTS:</div><div class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>.assign(&#123;&#125;, state, &#123;</div><div class="line">        <span class="attr">isFetching</span>: <span class="literal">false</span>,</div><div class="line">        <span class="attr">didInvalidate</span>: <span class="literal">false</span>,</div><div class="line">        <span class="attr">items</span>: action.posts,</div><div class="line">        <span class="attr">lastUpdated</span>: action.receivedAt</div><div class="line">      &#125;)</div><div class="line">    <span class="keyword">default</span>:</div><div class="line">      <span class="keyword">return</span> state</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//废弃、接收到、开始接受新闻后，将state.postsByReddit设为相关参数</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">postsByReddit</span>(<span class="params">state = &#123; &#125;, action</span>) </span>&#123;</div><div class="line">  <span class="keyword">switch</span> (action.type) &#123;</div><div class="line">    <span class="keyword">case</span> INVALIDATE_REDDIT:</div><div class="line">    <span class="keyword">case</span> RECEIVE_POSTS:</div><div class="line">    <span class="keyword">case</span> REQUEST_POSTS:</div><div class="line">      <span class="keyword">return</span> <span class="built_in">Object</span>.assign(&#123;&#125;, state, &#123;</div><div class="line">        [action.reddit]: posts(state[action.reddit], action)</div><div class="line">      &#125;)</div><div class="line">    <span class="keyword">default</span>:</div><div class="line">      <span class="keyword">return</span> state</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"><span class="comment">//将两个reducer合并成一个reducer,也就将全局的state加上postsByReddit,selectedReddit两个属性，每个属性都有自己的state</span></div><div class="line"><span class="keyword">const</span> rootReducer = combineReducers(&#123;</div><div class="line">  postsByReddit,</div><div class="line">  selectedReddit</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> rootReducer</div></pre></td></tr></table></figure>
+<p>我们写了两个reducer，<code>postsByReddit</code>, <code>selectedReddit</code>，最后把它们合并起来。所以我们的全局单一state树的第一级节点是<code>postsByReddit</code>, <code>selectedReddit</code>。</p>
+<p><code>postsByReddit</code>节点下面就是<code>postsByReddit</code>返回的<code>state</code>，也就是<code>[action.reddit]:posts(state[action.reddit], action)</code>。<code>posts()</code>就是<code>{ isFetching:false,didInvalidate: false, items: [] }</code></p>
+<p>现在明白了全局单一state树是如何构建了的吧？—-通过reducer。</p>
+<h2 id="componentWillReceiveProps"><a href="#componentWillReceiveProps" class="headerlink" title="componentWillReceiveProps"></a>componentWillReceiveProps</h2><p>这是React组件生命周期里面的一个时间节点的回调函数。通常在组件接收新的props时触发。我们在componentDidMount()和componentWillReceiveProps()这两个回调里面加上console.log，来追踪这两个事件的触发：</p>
+<p>containers/App.js（部分代码）</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//初始化渲染后触发</span></div><div class="line">componentDidMount() &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'执行componentDidMount'</span>);</div><div class="line">  <span class="keyword">const</span> &#123; dispatch, selectedReddit &#125; = <span class="keyword">this</span>.props</div><div class="line">  dispatch(fetchPostsIfNeeded(selectedReddit))</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//每次接受新的props触发</span></div><div class="line">componentWillReceiveProps(nextProps) &#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'执行componentWillReceiveProps'</span>,nextProps);</div><div class="line">  <span class="keyword">if</span> (nextProps.selectedReddit !== <span class="keyword">this</span>.props.selectedReddit) &#123;</div><div class="line">    <span class="keyword">const</span> &#123; dispatch, selectedReddit &#125; = nextProps</div><div class="line">    dispatch(fetchPostsIfNeeded(selectedReddit))</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后我们打开浏览器，执行下面的用户操作，查看console里面的打印信息：</p>
+<p>1，刷新页面：</p>
+<p><img src="https://ws3.sinaimg.cn/large/83900b4egw1f9xsvkl9lkj20qx06ngoi.jpg" alt=""></p>
+<p>首先，执行了<code>componentDidMount</code>，也就是渲染了组件。然后执行<code>request_post</code>的action，这个action改变了state，state和props就是部分绑定关系，所以触发了<code>componentWillReceiveProps</code>。</p>
+<p>然后那个<code>[HMR]</code>是热替换的意思，这里不详细叙述。</p>
+<p>接下来又执行了<code>componentWillReceiveProps</code>，为什么呢？因为获取新闻数据成功了，state改变了，被绑定的props也变了，所以执行了<code>componentWillReceiveProps</code>。我们可以看到posts里面已经有值了，这时触发了<code>receive_posts</code>的action。</p>
+<p>2，切换新闻类型</p>
+<p><img src="https://ws4.sinaimg.cn/large/83900b4egw1f9xsvkukugj20qr089wis.jpg" alt=""></p>
+<p>切换下拉框，触发了<code>select_reddit</code>的action，改变了state，改变了被绑定的props，所以触发了<code>componentWillReceiveProps</code></p>
+<p><code>componentWillReceiveProps</code>的回调又触发了<code>request_posts</code>的action，自己看代码。这个action改变了state,改变了被绑定的props，所以又触发了<code>componentWillReceiveProps</code>。</p>
+<p>获取新闻数据成功后，又改变了state,改变了被绑定的props，又触发了<code>componentWillReceiveProps</code>，也触发了<code>receive_posts</code>这个action。</p>
+<p>3，点击刷新按钮</p>
+<p><img src="https://ws4.sinaimg.cn/large/83900b4egw1f9xsvkukugj20qr089wis.jpg" alt=""></p>
+<p>首先，触发了<code>invalidate_reddit</code>废弃新闻的action，然后触发了<code>request_posts</code>的action，state的<code>isFetching</code>被改变了，所以触发了一次<code>componentWillReceiveProps</code></p>
+<p>接受完成，又触发一次<code>componentWillReceiveProps</code>。</p>
+<p>由此可见，<code>componentWillReceiveProps</code>在Redux+React的程序中，是个非常常用的概念，甚至可以说，只要能监听每次的<code>componentWillReceiveProps</code>，就可以清楚的了解React和Redux的交互过程。</p>
+<hr>
+<h2 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h2><p><a href="https://github.com/lewis617/react-redux-tutorial" target="_blank" rel="external">https://github.com/lewis617/react-redux-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/01/29/r2-async/" data-id="ciww39pio000z0i349ml2ndz9"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redux/">Redux</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/01/31/r2-ssr/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          React与Redux教程（六）redux服务端渲染流程
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/01/26/r2-undo/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">React与Redux教程（四）undo、devtools、router</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-r2-async" data-title="React与Redux教程（五）异步、单一state树结构、componentWillReceiveProps"
+		 data-url="https://lewis617.github.io/2016/01/29/r2-async/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

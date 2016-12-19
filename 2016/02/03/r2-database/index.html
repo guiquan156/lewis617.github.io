@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>React与Redux教程（八）连接数据库的Redux程序 | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="前面所有的教程都是解读官方的示例代码，是时候我们自己写个连接数据库的Redux程序了！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React与Redux教程（八）连接数据库的Redux程序">
+<meta property="og:url" content="https://lewis617.github.io/2016/02/03/r2-database/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="前面所有的教程都是解读官方的示例代码，是时候我们自己写个连接数据库的Redux程序了！">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xqsagq6bg20q50ksjwp.gif">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xqsbmr1uj20bb055dgc.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.807Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React与Redux教程（八）连接数据库的Redux程序">
+<meta name="twitter:description" content="前面所有的教程都是解读官方的示例代码，是时候我们自己写个连接数据库的Redux程序了！">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xqsagq6bg20q50ksjwp.gif">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-r2-database" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/02/03/r2-database/" class="article-date">
+  <time datetime="2016-02-03T01:00:00.000Z" itemprop="datePublished">2016-02-03</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      React与Redux教程（八）连接数据库的Redux程序
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>前面所有的教程都是解读官方的示例代码，是时候我们自己写个连接数据库的Redux程序了！</p>
+<a id="more"></a>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p><img src="https://ws2.sinaimg.cn/large/83900b4egw1f9xqsagq6bg20q50ksjwp.gif" alt=""></p>
+<p>这个例子代码，是我自己写的程序，一个非常简单的todo，但是包含了Redux插件的用法，中间件的用法，连接数据库的方法等多个知识点。</p>
+<p>源代码：</p>
+<p><a href="https://github.com/lewis617/react-redux-tutorial/tree/master/redux-wilddog-todos" target="_blank" rel="external">https://github.com/lewis617/react-redux-tutorial/tree/master/redux-wilddog-todos</a></p>
+<p>运行方法：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">npm install</div><div class="line"></div><div class="line">npm run build</div></pre></td></tr></table></figure>
+<p>手动打开index.html</p>
+<h2 id="Wilddog数据库"><a href="#Wilddog数据库" class="headerlink" title="Wilddog数据库"></a>Wilddog数据库</h2><p>作为一名曾经的Angular开发者，我非常喜欢用Firebase来做自己的数据库，并结合Angular实现酷炫的”三向数据绑定”。Wilddog是中国的”Firebase”，不仅语法兼容，而且国内速度更快。</p>
+<p>下面的程序都是基于Wilddog和Angular的程序，也用了我曾经的最爱Requirejs，有兴趣的同学可以看看，顺便给我点star哈哈！</p>
+<p><a href="https://github.com/lewis617/wild-angular-seed" target="_blank" rel="external">https://github.com/lewis617/wild-angular-seed</a></p>
+<p><a href="https://github.com/lewis617/daily-task" target="_blank" rel="external">https://github.com/lewis617/daily-task</a></p>
+<p>如今写React程序，仍然可以使用Wilddog或者Firebase，不仅不用配置数据库服务，也不用写数据库增删改查的API程序了，可以让我们前端工程师专注于写前端程序！</p>
+<p><a href="https://www.wilddog.com/" target="_blank" rel="external">https://www.wilddog.com/</a></p>
+<h2 id="Redux的Chrome插件"><a href="#Redux的Chrome插件" class="headerlink" title="Redux的Chrome插件"></a>Redux的Chrome插件</h2><p>本程序也用到了Redux的chrome插件，可以帮助我们自动生成Redux的devtool界面，非常好用啊！只需要在你的程序store注册中，加入一行代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> (initialState) =&gt; &#123;</div><div class="line">  <span class="keyword">const</span> store = compose(</div><div class="line">      applyMiddleware(</div><div class="line">          thunk,</div><div class="line">          createLogger()</div><div class="line">      ),</div><div class="line">      <span class="built_in">window</span>.devToolsExtension ? <span class="built_in">window</span>.devToolsExtension() : <span class="function"><span class="params">f</span> =&gt;</span> f</div><div class="line">  )(createStore)(reducers, initialState);</div><div class="line"></div><div class="line">  <span class="keyword">return</span> store;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>就是这行代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.devToolsExtension ? <span class="built_in">window</span>.devToolsExtension() : <span class="function"><span class="params">f</span> =&gt;</span> f</div></pre></td></tr></table></figure>
+<p>安装方法，就是去chrome的市场搜索Redux关键字就可以了！</p>
+<h2 id="没有服务端渲染和热替换"><a href="#没有服务端渲染和热替换" class="headerlink" title="没有服务端渲染和热替换"></a>没有服务端渲染和热替换</h2><p>为什么要把这个单独提起来说呢？这是一个历史遗留问题。我们研究所用的Web框架是Flask，一个Python框架，包括前端也是用Flask的Jinja模板。没有Node.js也就意味着无法使用服务端渲染和热替换这两个炫酷的功能。</p>
+<p>那么不是基于Node.js的前端程序，还能否使用Redux和React呢？当然可以，我只通过Webpack生成一个js文件，将js文件放进html里面。其他所有的功能都不要。这也是可以的。这也算是结合非Node平台的一个实践经验吧！当然你的包管理还得用NPM。</p>
+<p>从另一个方面来说，基于Node.js的前端时代已经来临，如果你拒绝它，将会失去很多，或者寸步难行！</p>
+<h2 id="获取所有的todos"><a href="#获取所有的todos" class="headerlink" title="获取所有的todos"></a>获取所有的todos</h2><p>我们在action中进行http请求和服务端交互，即便是在中间件中执行http请求，其实质也是dispatch的封装。那么这个程序的关键就是action的编写。</p>
+<p>实例化Wilddog，定义action类型:</p>
+<p>actions.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> Wilddog <span class="keyword">from</span> <span class="string">'wilddog/lib/wilddog-node'</span></div><div class="line"><span class="comment">/*</span></div><div class="line"> * action 类型</div><div class="line"> */</div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> GET_TODO_ERROR = <span class="string">'GET_TODO_ERROR'</span>;</div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> GET_TODO_OK = <span class="string">'GET_TODO_OK'</span>;</div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> ADD_TODO_ERROR = <span class="string">'ADD_TODO_ERROR'</span>;</div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> ADD_TODO_OK = <span class="string">'ADD_TODO_OK'</span>;</div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> REMOVE_TODO_OK = <span class="string">'REMOVE_TODO_OK'</span>;</div><div class="line"><span class="keyword">export</span> <span class="keyword">const</span> REMOVE_TODO_ERROR = <span class="string">'REMOVE_TODO_ERROR'</span>;</div><div class="line"></div><div class="line"><span class="keyword">let</span> wilddog=<span class="keyword">new</span> Wilddog(<span class="string">'https://redux-wilddog-todos.wilddogio.com'</span>)</div></pre></td></tr></table></figure>
+<p>从Wilddog数据库中获取所有的todos，因为Wilddog数据库是树状结构，生成的列表，其实质也是个对象，所以我们需要将其转化为数组：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">    </div><div class="line">    </div><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">getTodo</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">dispatch,getState</span>)=&gt;</span>&#123;</div><div class="line"></div><div class="line">    wilddog.child(<span class="string">'todos'</span>).once(<span class="string">'value'</span>,(snapshot)=&gt;&#123;</div><div class="line">      <span class="keyword">let</span> obj=snapshot.val();</div><div class="line">      <span class="keyword">let</span> array=[];</div><div class="line">      <span class="keyword">for</span>(<span class="keyword">let</span> key <span class="keyword">in</span> obj)&#123;</div><div class="line">        array.push(&#123;<span class="attr">key</span>:key,<span class="attr">text</span>:obj[key].text&#125;)</div><div class="line">      &#125;</div><div class="line">      dispatch(&#123;</div><div class="line">        <span class="attr">type</span>: GET_TODO_OK,</div><div class="line">        <span class="attr">payload</span>: array</div><div class="line">      &#125;)</div><div class="line">    &#125;,(err)=&gt;&#123;</div><div class="line">      dispatch(&#123;</div><div class="line">        <span class="attr">type</span>: GET_TODO_ERROR,</div><div class="line">        <span class="attr">payload</span>: err</div><div class="line">      &#125;)</div><div class="line">    &#125;);</div><div class="line"></div><div class="line"></div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>wilddog.child(&#39;todos&#39;).once(&#39;value&#39;,function)</code>是获取<code>&#39;todos&#39;</code>节点数据的方法。获取到数据后，转化为数组。然后dispatch一个<code>GET_TODO_OK</code>，告诉reducer获取数据成功，可以更新state了。数据都装在<code>payload</code>中。如果失败，则dispatch一<code>GET_TODO_ERROR</code>。</p>
+<p>就是这么简单，不用写后台程序，在js中直接操作数据库！</p>
+<p>那么在哪里执行这个getTodo呢？你可以在组件渲染后dispatch它，也可以在初始化store后，立即执行它。我用的是后面一种：</p>
+<p>index.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123; getTodo,registerListeners&#125; <span class="keyword">from</span> <span class="string">'./actions'</span></div><div class="line"></div><div class="line"><span class="keyword">let</span> store = createStore();</div><div class="line"></div><div class="line">store.dispatch(getTodo())</div><div class="line"><span class="string">``</span><span class="string">`    </span></div><div class="line"></div><div class="line">## 添加新的todo</div><div class="line"></div><div class="line">在action中定义添加todo的方法：</div><div class="line"></div><div class="line">actions.js</div><div class="line"></div><div class="line">`<span class="string">``</span>js</div><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">addTodo</span>(<span class="params">text</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">dispatch,getState</span>)=&gt;</span>&#123;</div><div class="line"></div><div class="line">    wilddog.child(<span class="string">'todos'</span>).push(&#123;</div><div class="line">      text</div><div class="line">    &#125;,(err)=&gt;&#123;</div><div class="line">      <span class="keyword">if</span>(err)&#123;dispatch(&#123;<span class="attr">type</span>:ADD_TODO_ERROR,<span class="attr">payload</span>:err&#125;)&#125;</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>通过<code>wilddog.child(&#39;todos&#39;).push()</code>方法，直接往数据库中插入数据，第二参数是回调，失败的话，dispatch相应的action。</p>
+<p>那么成功后的action在哪执行？我们需要再写一个function，绑定数据变动的回调。其实正常情况下，我们在这个function中就直接写成功后的回调了，主要是因为Wilddog数据库的成功回调不在<code>push</code>这个方法中。</p>
+<p>actions.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">registerListeners</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">dispatch, getState</span>) =&gt;</span> &#123;</div><div class="line"></div><div class="line">    wilddog.child(<span class="string">'todos'</span>).on(<span class="string">'child_removed'</span>, snapshot =&gt; &#123;</div><div class="line">      dispatch(&#123;</div><div class="line">        <span class="attr">type</span>: REMOVE_TODO_OK,</div><div class="line">        <span class="attr">payload</span>: snapshot.key()</div><div class="line">      &#125;)</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">    wilddog.child(<span class="string">'todos'</span>).on(<span class="string">'child_added'</span>, snapshot =&gt; dispatch(&#123;</div><div class="line">      <span class="attr">type</span>: ADD_TODO_OK,</div><div class="line">      <span class="attr">payload</span>: <span class="built_in">Object</span>.assign(&#123;&#125;,snapshot.val(),&#123;<span class="attr">key</span>:snapshot.key()&#125;)</div><div class="line">    &#125;));</div><div class="line"></div><div class="line">  &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>wilddog.child(&#39;todos&#39;).on(&#39;child_added&#39;)</code>这个方法定义了添加todo成功后的回调，我们执行了一个<code>ADD_TODO_OK</code> 的action，并把新的todo对象放在<code>payload</code>中返回给reducer。</p>
+<p>你也看到了，我们顺便把移除todo成功的回调也定义了。</p>
+<p>我们在哪执行这个绑定函数呢？就在获取所有todos的后面吧！其实放在组件渲染完也可以！</p>
+<p>index.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">store.dispatch(registerListeners())</div></pre></td></tr></table></figure>
+<h2 id="移除指定todo"><a href="#移除指定todo" class="headerlink" title="移除指定todo"></a>移除指定todo</h2><p>在action中添加移除todo的方法：</p>
+<p>actions.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">removeTodo</span>(<span class="params">key</span>) </span>&#123;</div><div class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">dispatch,getState</span>)=&gt;</span>&#123;</div><div class="line"></div><div class="line">    wilddog.child(<span class="string">`todos/<span class="subst">$&#123;key&#125;</span>`</span>).remove(<span class="function">(<span class="params">err</span>)=&gt;</span>&#123;</div><div class="line">      <span class="keyword">if</span>(err)dispatch(&#123;<span class="attr">type</span>:REMOVE_TODO_ERROR,<span class="attr">payload</span>:err&#125;)</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>通过Wilddog的<code>remove</code>方法移除数据库的指定节点。就是这么简单！然后编写失败后的回调以及action！</p>
+<h2 id="数据库在action中完事，state还需要reducer"><a href="#数据库在action中完事，state还需要reducer" class="headerlink" title="数据库在action中完事，state还需要reducer"></a>数据库在action中完事，state还需要reducer</h2><p>数据库我们是操作完啦，不过组件的显示是基于state的，我们还要同步更新state，那么reducer就出场了！</p>
+<p>reducers.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">    </div><div class="line"><span class="keyword">import</span> &#123; combineReducers &#125; <span class="keyword">from</span> <span class="string">'redux'</span></div><div class="line"><span class="keyword">import</span> &#123; ADD_TODO_OK, REMOVE_TODO_OK ,GET_TODO_OK&#125; <span class="keyword">from</span> <span class="string">'./actions'</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">todos</span>(<span class="params">state=[], action</span>) </span>&#123;</div><div class="line">  <span class="keyword">switch</span> (action.type) &#123;</div><div class="line">    <span class="keyword">case</span> GET_TODO_OK:</div><div class="line">      <span class="keyword">return</span> action.payload</div><div class="line">    <span class="keyword">case</span> ADD_TODO_OK:</div><div class="line">      <span class="keyword">return</span> [</div><div class="line">        ...state,</div><div class="line">        action.payload</div><div class="line">      ]</div><div class="line">    <span class="keyword">case</span> REMOVE_TODO_OK:</div><div class="line">      <span class="keyword">return</span> state.filter(<span class="function">(<span class="params">todo</span>)=&gt;</span>todo.key!==action.payload</div><div class="line">      )</div><div class="line">    <span class="keyword">default</span>:</div><div class="line">      <span class="keyword">return</span> state</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="keyword">const</span> todoApp = combineReducers(&#123;</div><div class="line">  todos</div><div class="line">&#125;)</div><div class="line"></div><div class="line"><span class="keyword">export</span> <span class="keyword">default</span> todoApp</div></pre></td></tr></table></figure>
+<p>很简单，如果你还不会，可以去前面几节教程补课。</p>
+<p>来个图吧：</p>
+<p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9xqsbmr1uj20bb055dgc.jpg" alt=""></p>
+<p>action操作数据库后，要在回调中返回信号，让reducer更新state，因为只有state变了，组件才会变。state变了，组件自动就变了，至少不用苦逼地操作dom了，还是挺开心的！</p>
+<h2 id="为什么不提React组件"><a href="#为什么不提React组件" class="headerlink" title="为什么不提React组件"></a>为什么不提React组件</h2><p>说了这么多我们的Redux容器算是搞定了，为什么不提组件？不是不提，是要让大家知道，组件和Redux容器的耦合度很低，我们可以完全将它们隔离开来编写，通过一些固定的套路将它们连接起来。什么套路？</p>
+<ol>
+<li>绑定state到props</li>
+<li>绑定action到props（可选）</li>
+<li>将store注入，并用provider在顶层包住组件</li>
+</ol>
+<p>Redux是个状态容器，只能通过发起action改变state，这种集中管控的做法让状态管理和预测变的简单。组件只是state的展现形式而已！React只是一个界面库而已！</p>
+<hr>
+<h2 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h2><p><a href="https://github.com/lewis617/react-redux-tutorial" target="_blank" rel="external">https://github.com/lewis617/react-redux-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/02/03/r2-database/" data-id="ciww39pj4001a0i34oluyolnh"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/React/">React</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redux/">Redux</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/02/06/custom-jinja2-filter/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          自定义 Jinja2 过滤器
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/02/02/r2-middleware/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">React与Redux教程（七）自定义Redux中间件</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-r2-database" data-title="React与Redux教程（八）连接数据库的Redux程序"
+		 data-url="https://lewis617.github.io/2016/02/03/r2-database/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

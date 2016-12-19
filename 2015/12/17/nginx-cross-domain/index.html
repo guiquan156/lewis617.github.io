@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>使用nginx解决跨域问题（flask为例） | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="背景我们单位的架构是在api和js之间架构一个中间层（python编写），以实现后端渲染，登录状态判定，跨域转发api等功能。但是这样一个中间会使前端工程师的工作量乘上两倍，原本js可以直接ajax请求api，但是我们不得不ajax请求中间层，中间层再请求api。如图：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用nginx解决跨域问题（flask为例）">
+<meta property="og:url" content="https://lewis617.github.io/2015/12/17/nginx-cross-domain/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="背景我们单位的架构是在api和js之间架构一个中间层（python编写），以实现后端渲染，登录状态判定，跨域转发api等功能。但是这样一个中间会使前端工程师的工作量乘上两倍，原本js可以直接ajax请求api，但是我们不得不ajax请求中间层，中间层再请求api。如图：">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/83900b4egw1f9yh3lfuw3j20iq08caag.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9yh3n0udyj203d042mx6.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9yh3lootcj205902it8m.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/83900b4egw1f9yh3misioj204s027glh.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9yh3mwml4j204s02ajra.jpg">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9yh3ngv9zj2064025747.jpg">
+<meta property="og:image" content="https://ws3.sinaimg.cn/large/83900b4egw1f9yh3npj0jj207402hq2t.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9yh3o1j2dj20iq08cdgp.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="使用nginx解决跨域问题（flask为例）">
+<meta name="twitter:description" content="背景我们单位的架构是在api和js之间架构一个中间层（python编写），以实现后端渲染，登录状态判定，跨域转发api等功能。但是这样一个中间会使前端工程师的工作量乘上两倍，原本js可以直接ajax请求api，但是我们不得不ajax请求中间层，中间层再请求api。如图：">
+<meta name="twitter:image" content="https://ws3.sinaimg.cn/large/83900b4egw1f9yh3lfuw3j20iq08caag.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-nginx-cross-domain" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2015/12/17/nginx-cross-domain/" class="article-date">
+  <time datetime="2015-12-17T19:56:00.000Z" itemprop="datePublished">2015-12-18</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      使用nginx解决跨域问题（flask为例）
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我们单位的架构是在api和js之间架构一个中间层（python编写），以实现后端渲染，登录状态判定，跨域转发api等功能。但是这样一个中间会使前端工程师的工作量乘上两倍，原本js可以直接ajax请求api，但是我们不得不ajax请求中间层，中间层再请求api。如图：</p>
+<a id="more"></a>
+<p><img src="https://ws3.sinaimg.cn/large/83900b4egw1f9yh3lfuw3j20iq08caag.jpg" alt=""></p>
+<p>为了少敲代码，提高工作效率，我们当然希望将python中间层砍掉，但是如何解决以下三个问题，成为关键：</p>
+<ol>
+<li>后端渲染</li>
+<li>登录状态判定</li>
+<li>跨域转发api</li>
+</ol>
+<p>关于1，2我会在另外两篇博客中详细叙述，这篇文章主要解决3，也就是跨域问题。解决跨域问题方法很多：反向代理，jsonp，Cross-Origin Resource Sharing等，我们今天通过nginx反向代理实现。</p>
+<h2 id="新建两个flask程序来实验"><a href="#新建两个flask程序来实验" class="headerlink" title="新建两个flask程序来实验"></a>新建两个flask程序来实验</h2><p>打开pycharm，新建项目选择flask，name分别设为client和server。</p>
+<p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9yh3n0udyj203d042mx6.jpg" alt=""></p>
+<p>编写client和server的python文件，使其分别跑在5000端口和5001端口：</p>
+<p>client.py</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</div><div class="line"></div><div class="line">app = Flask(__name__)</div><div class="line"></div><div class="line"><span class="meta">@app.route('/') def hello_world(): return 'this is client'</span></div><div class="line"></div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    app.run(port=<span class="number">5000</span>)</div></pre></td></tr></table></figure>
+<p> server.py</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">from flask import Flask</div><div class="line"></div><div class="line">app = Flask(__name__)</div><div class="line"></div><div class="line">@app.route(&apos;/&apos;) def hello_world(): return &apos;this is server&apos; @app.route(&apos;/api/&apos;) def api(): return &apos;api&apos;</div><div class="line"></div><div class="line">if __name__ == &apos;__main__&apos;:</div><div class="line">    app.run(port=5001)</div></pre></td></tr></table></figure>
+<p>运行client.py</p>
+<p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9yh3lootcj205902it8m.jpg" alt=""></p>
+<p>运行server.py</p>
+<p><img src="https://ws3.sinaimg.cn/large/83900b4egw1f9yh3misioj204s027glh.jpg" alt=""></p>
+<h2 id="安装nginx（ubuntu）"><a href="#安装nginx（ubuntu）" class="headerlink" title="安装nginx（ubuntu）"></a>安装nginx（ubuntu）</h2><p>打开新立得，搜索nginx，选中并安装。ubuntu就是这么简单，其他平台暂不叙述，可自行搜索。</p>
+<h2 id="配置nginx，使其将5000端口（客户端）的请求转发到5001端口（服务器端）"><a href="#配置nginx，使其将5000端口（客户端）的请求转发到5001端口（服务器端）" class="headerlink" title="配置nginx，使其将5000端口（客户端）的请求转发到5001端口（服务器端）"></a>配置nginx，使其将5000端口（客户端）的请求转发到5001端口（服务器端）</h2><p>打开nginx默认的配置文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo gedit /etc/nginx/sites-available/default</div></pre></td></tr></table></figure>
+<p>在文件末尾添加如下命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line">## demo listen 5017 proxy 5000 and 5001 ##</div><div class="line">server &#123;</div><div class="line">    listen 5017; </div><div class="line">    server_name a.xxx.com;</div><div class="line">    access_log /var/log/nginx/a.access.log;</div><div class="line">    error_log /var/log/nginx/a.error.log;</div><div class="line">    root html;</div><div class="line">    index index.html index.htm index.php;</div><div class="line"></div><div class="line">    ## send request back to flask ##</div><div class="line">    location / &#123;</div><div class="line">        proxy_pass  http://127.0.0.1:5000/ ; </div><div class="line"> #Proxy Settings</div><div class="line">        proxy_redirect off;</div><div class="line">        proxy_set_header Host $host;</div><div class="line">        proxy_set_header X-Real-IP $remote_addr;</div><div class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</div><div class="line">        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;</div><div class="line">        proxy_max_temp_file_size 0;</div><div class="line">        proxy_connect_timeout 90;</div><div class="line">        proxy_send_timeout 90;</div><div class="line">        proxy_read_timeout 90;</div><div class="line">        proxy_buffer_size 4k;</div><div class="line">        proxy_buffers 4 32k;</div><div class="line">        proxy_busy_buffers_size 64k;</div><div class="line"></div><div class="line">   &#125;</div><div class="line">    location /proxy &#123;</div><div class="line">        rewrite ^.+proxy/?(.*)$ /$1 break;</div><div class="line">        proxy_pass  http://127.0.0.1:5001/ ; </div><div class="line"> #Proxy Settings</div><div class="line">        proxy_redirect off;</div><div class="line">        proxy_set_header Host $host;</div><div class="line">        proxy_set_header X-Real-IP $remote_addr;</div><div class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</div><div class="line">        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;</div><div class="line">        proxy_max_temp_file_size 0;</div><div class="line">        proxy_connect_timeout 90;</div><div class="line">        proxy_send_timeout 90;</div><div class="line">        proxy_read_timeout 90;</div><div class="line">        proxy_buffer_size 4k;</div><div class="line">        proxy_buffers 4 32k;</div><div class="line">        proxy_busy_buffers_size 64k;</div><div class="line"></div><div class="line">   &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line">## End a.xxx.com ##</div></pre></td></tr></table></figure>
+<p>运行nginx:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo /etc/init.d/nginx restart</div></pre></td></tr></table></figure>
+<p>这些命令使得localhost:5017代理了localhost:5000，如图：</p>
+<p><img src="https://ws2.sinaimg.cn/large/83900b4egw1f9yh3mwml4j204s02ajra.jpg" alt=""></p>
+<p>使得localhost:5017/proxy代理了localhost:5001，如图：</p>
+<p><img src="https://ws2.sinaimg.cn/large/83900b4egw1f9yh3ngv9zj2064025747.jpg" alt=""></p>
+<p>使得localhost:5017/proxy/api/代理了localhost:5001/api/，如图：</p>
+<p><img src="https://ws3.sinaimg.cn/large/83900b4egw1f9yh3npj0jj207402hq2t.jpg" alt=""></p>
+<p>如此以来，原本需要从5000端口请求5001端口的url，变成了从5017端口请求5017端口的/proxy。解决了同源策略带来的跨域问题。</p>
+<p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9yh3o1j2dj20iq08cdgp.jpg" alt=""></p>
+<p>这个配置文件也可以和uwsgi配合起来用，也可以不用uwsgi，直接运行python文件启动服务，本文便是后一种。</p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2015/12/17/nginx-cross-domain/" data-id="ciww39pig000s0i343sttinfk"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Flask/">Flask</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/01/12/ng-complain-r2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          Angular开发者吐槽React+Redux的复杂：“一个demo证明你的开发效率低下”
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/12/08/karma-test-demo/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">使用Karma测试平时写的小demo（arguments为例）</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-nginx-cross-domain" data-title="使用nginx解决跨域问题（flask为例）"
+		 data-url="https://lewis617.github.io/2015/12/17/nginx-cross-domain/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>

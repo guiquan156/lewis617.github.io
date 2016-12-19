@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Angular2系列教程（十一）路由嵌套、路由生命周期、matrix URL notation | Lewis617的个人博客</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="今天我们要讲的是 ng2 的路由的第二部分，包括路由嵌套、路由生命周期等知识点。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Angular2系列教程（十一）路由嵌套、路由生命周期、matrix URL notation">
+<meta property="og:url" content="https://lewis617.github.io/2016/04/04/ng2-router-2/index.html">
+<meta property="og:site_name" content="Lewis617的个人博客">
+<meta property="og:description" content="今天我们要讲的是 ng2 的路由的第二部分，包括路由嵌套、路由生命周期等知识点。">
+<meta property="og:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xjj733w0j20bc0a8dgz.jpg">
+<meta property="og:image" content="https://ws1.sinaimg.cn/large/83900b4egw1f9xjj4z6gkj20c8058jrg.jpg">
+<meta property="og:updated_time" content="2016-12-19T12:59:38.803Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Angular2系列教程（十一）路由嵌套、路由生命周期、matrix URL notation">
+<meta name="twitter:description" content="今天我们要讲的是 ng2 的路由的第二部分，包括路由嵌套、路由生命周期等知识点。">
+<meta name="twitter:image" content="https://ws2.sinaimg.cn/large/83900b4egw1f9xjj733w0j20bc0a8dgz.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="Lewis617的个人博客" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  
+    <link href="//fonts.css.network/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Lewis617的个人博客</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">何以升华，唯有沉淀</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://lewis617.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-ng2-router-2" class="article article-type-post" itemscope
+		 itemprop="blogPost">
+	<div class="article-meta">
+		<a href="/2016/04/04/ng2-router-2/" class="article-date">
+  <time datetime="2016-04-04T01:33:00.000Z" itemprop="datePublished">2016-04-04</time>
+</a>
+		
+	</div>
+	<div class="article-inner">
+		
+		
+		<header class="article-header">
+			
+  
+    <h1 class="article-title" itemprop="name">
+      Angular2系列教程（十一）路由嵌套、路由生命周期、matrix URL notation
+    </h1>
+  
+
+		</header>
+		
+		<div class="article-entry" itemprop="articleBody">
+			
+			<p>今天我们要讲的是 ng2 的路由的第二部分，包括路由嵌套、路由生命周期等知识点。</p>
+<a id="more"></a>
+<h2 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h2><p>例子仍然是上节课的例子：</p>
+<p><img src="https://ws2.sinaimg.cn/large/83900b4egw1f9xjj733w0j20bc0a8dgz.jpg" alt=""></p>
+<p>上节课，我们讲解了英雄列表，这节课我们讲解危机中心。</p>
+<p>源代码：</p>
+<p><a href="https://github.com/lewis617/angular2-tutorial/tree/gh-pages/router" target="_blank" rel="external">https://github.com/lewis617/angular2-tutorial/tree/gh-pages/router</a></p>
+<p>运行方法：</p>
+<p>在根目录下运行：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">http-server</div></pre></td></tr></table></figure>
+<h2 id="路由嵌套"><a href="#路由嵌套" class="headerlink" title="路由嵌套"></a>路由嵌套</h2><p>我们在 app/app.component.ts 中定义了路由 URL 和视图组件，其中包括这样一项：</p>
+<p>app/app.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">    </div><div class="line">&#123; <span class="comment">// Crisis Center child route</span></div><div class="line">  path: <span class="string">'/crisis-center/...'</span>,</div><div class="line">  name: <span class="string">'CrisisCenter'</span>,</div><div class="line">  component: CrisisCenterComponent,</div><div class="line">  useAsDefault: <span class="literal">true</span></div><div class="line">&#125;,</div></pre></td></tr></table></figure>
+<p>那个<code>...</code>就是代表这个 URL 下面可以定义子路由，也就是嵌套路由。嵌套路由是如何实现的？很简单，只需要在视图组件中再次配置路由即可：</p>
+<p>app/crisis-center/crisis-center.component.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> &#123;Component&#125;     from <span class="string">'angular2/core'</span>;</div><div class="line"><span class="keyword">import</span> &#123;RouteConfig, RouterOutlet&#125; from <span class="string">'angular2/router'</span>;</div><div class="line"></div><div class="line"><span class="keyword">import</span> &#123;CrisisListComponent&#125;   from <span class="string">'./crisis-list.component'</span>;</div><div class="line"><span class="keyword">import</span> &#123;CrisisDetailComponent&#125; from <span class="string">'./crisis-detail.component'</span>;</div><div class="line"><span class="keyword">import</span> &#123;CrisisService&#125;         from <span class="string">'./crisis.service'</span>;</div><div class="line"></div><div class="line">@Component(&#123;</div><div class="line">  template:  <span class="string">`</span></div><div class="line">    &lt;h2&gt;CRISIS CENTER&lt;/h2&gt;</div><div class="line">    &lt;router-outlet&gt;&lt;/router-outlet&gt;</div><div class="line">  `,</div><div class="line">  directives: [RouterOutlet],</div><div class="line">  providers:  [CrisisService]</div><div class="line">&#125;)</div><div class="line">@RouteConfig([</div><div class="line">  &#123;path:<span class="string">'/'</span>,    name: <span class="string">'CrisisList'</span>,   component: CrisisListComponent, useAsDefault: <span class="literal">true</span>&#125;,</div><div class="line">  &#123;path:<span class="string">'/:id'</span>, name: <span class="string">'CrisisDetail'</span>, component: CrisisDetailComponent&#125;</div><div class="line">])</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> CrisisCenterComponent &#123; &#125;</div></pre></td></tr></table></figure>
+<p>上述代码，我们干了几件事”：</p>
+<ol>
+<li>写了一个组件，包括<code>h2</code>和 <code>router-outlet</code></li>
+<li>使用<code>@RouteConfig</code>，进行路由配置</li>
+</ol>
+<p>这样我们就实现了嵌套路由。就是这么简单。</p>
+<h2 id="路由生命周期"><a href="#路由生命周期" class="headerlink" title="路由生命周期"></a>路由生命周期</h2><p>路由跳转到别的视图的时候，会触发一个路由的生命周期钩子：<code>routerCanDeactivate</code>:</p>
+<p>app/crisis-center/crisis-detail.component.ts  </p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">routerCanDeactivate(next: ComponentInstruction, prev: ComponentInstruction) : <span class="built_in">any</span> &#123;</div><div class="line">  <span class="comment">// Allow synchronous navigation (`true`) if no crisis or the crisis is unchanged.</span></div><div class="line">  <span class="keyword">if</span> (!<span class="keyword">this</span>.crisis || <span class="keyword">this</span>.crisis.name === <span class="keyword">this</span>.editName) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</div><div class="line">  &#125;</div><div class="line">  <span class="comment">// Otherwise ask the user with the dialog service and return its</span></div><div class="line">  <span class="comment">// promise which resolves to true or false when the user decides</span></div><div class="line">  <span class="keyword">return</span> <span class="keyword">this</span>._dialog.confirm(<span class="string">'Discard changes?'</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这段代码，会在你修改完危机信息后，既不点击 save 也不点击 cancer 时候触发。也就是</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">this</span>._dialog.confirm(<span class="string">'Discard changes?'</span>);</div></pre></td></tr></table></figure>
+<p>弹出一个对话框：</p>
+<p><img src="https://ws1.sinaimg.cn/large/83900b4egw1f9xjj4z6gkj20c8058jrg.jpg" alt=""></p>
+<p>这里为什么要使用单独的<code>dialog</code> 服务呢？为何不直接出发<code>window.confirm()？</code>因为路由的生命周期接受 Bool 或者 Promise 对象（ ng1 也是这样哦）。而<code>window.confirm</code> 并不返回一个promise对象，我们需要对其进行包装：  </p>
+<p>app/dialog.service.ts</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">    </div><div class="line"></div><div class="line"><span class="keyword">import</span> &#123;Injectable&#125; from <span class="string">'angular2/core'</span>;</div><div class="line"><span class="comment">/**</span></div><div class="line"> * Async modal dialog service</div><div class="line"> * DialogService makes this app easier to test by faking this service.</div><div class="line"> * <span class="doctag">TODO:</span> better modal implemenation that doesn't use window.confirm</div><div class="line"> */</div><div class="line">@Injectable()</div><div class="line"><span class="keyword">export</span> <span class="keyword">class</span> DialogService &#123;</div><div class="line">  <span class="comment">/**</span></div><div class="line">   * Ask user to confirm an action. `message` explains the action and choices.</div><div class="line">   * Returns promise resolving to `true`=confirm or `false`=cancel</div><div class="line">   */</div><div class="line">  confirm(message?:<span class="built_in">string</span>) &#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Promise&lt;<span class="built_in">boolean</span>&gt;((resolve, reject) =&gt;</div><div class="line">      resolve(<span class="built_in">window</span>.confirm(message || <span class="string">'Is it OK?'</span>)));</div><div class="line">  &#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们使用 Promise 包装了<code>confirm</code> 这个方法，使得这个服务，会触发<code>confirm</code>的同时，最后也能返回一个Promise。这样以来我们就可以在路由的生命周期中尽情的使用了！</p>
+<p>值得一提的是 ng1 路由的<code>resolve</code>属性也是接受一个Promise，有兴趣的同学可以看我在 ng1 中对 wilddog 的路由改装：</p>
+<p><a href="https://github.com/lewis617/wild-angular-seed/blob/gh-pages/components/wilddog.utils/wilddog.utils.js#L85" target="_blank" rel="external">https://github.com/lewis617/wild-angular-seed/blob/gh-pages/components/wilddog.utils/wilddog.utils.js#L85</a></p>
+<h1 id="matrix-URL-notation"><a href="#matrix-URL-notation" class="headerlink" title="matrix URL notation"></a><em>matrix URL</em> notation</h1><p>当我们从危机详情视图返回危机列表视图的时候，我们发现 URL 变成了：</p>
+<p><a href="http://localhost:63342/angular2-tutorial/router/index.html/crisis-center/;id=1;foo=foo" target="_blank" rel="external">http://localhost:63342/angular2-tutorial/router/index.html/crisis-center/;id=1;foo=foo</a></p>
+<p><code>;id=1;foo=foo</code> 这个参数是我们没有见过的，我们知道query string一般都是<code>?</code>加<code>&amp;</code>，而这个参数则使用了<code>;</code>，这叫做 <em>matrix URL</em> notation。  </p>
+<blockquote>
+<p><em>Matrix URL</em> notation is an idea first floated in a <a href="http://www.w3.org/DesignIssues/MatrixURIs.html" target="_blank" rel="external">1996 proposal</a> by the founder of the web, Tim Berners-Lee.</p>
+<p>Although matrix notation never made it into the HTML standard, it is legal and it became popular among browser routing systems as a way to isolate parameters belonging to parent and child routes. The Angular Component Router is such a system.</p>
+<p>The syntax may seem strange to us but users are unlikely to notice or care as long as the URL can be emailed and pasted into a browser address bar as this one can.</p>
+</blockquote>
+<p>这是 ng2 官方文档对这个概念的解释，我们从中得知，这个概念用区分参数属于父视图还是子视图。</p>
+<p>我们在上节课英雄列表中，发现 URL 是普通的 query string。为什么在这里变成了<em>matrix URL</em> notation？因为英雄列表视图没有子视图，没有嵌套路由的概念。而危机中心则使用了嵌套路由，拥有父子视图的嵌套，为了加一区分，ng2 的路由系统使用了 <em>matrix URL</em>  notation 这个概念。</p>
+<hr>
+<h2 id="教程源代码及目录"><a href="#教程源代码及目录" class="headerlink" title="教程源代码及目录"></a>教程源代码及目录</h2><p><a href="https://github.com/lewis617/angular2-tutorial" target="_blank" rel="external">https://github.com/lewis617/angular2-tutorial</a></p>
+
+			
+		</div>
+		<footer class="article-footer">
+			<a data-url="https://lewis617.github.io/2016/04/04/ng2-router-2/" data-id="ciww39pi5000n0i34nc4qqc7w"
+			   class="article-share-link">共享</a>
+			
+			
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Angular2/">Angular2</a></li></ul>
+
+		</footer>
+	</div>
+	
+	
+<nav id="article-nav">
+  
+    <a href="/2016/11/16/r2-bs-alert/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">下一篇</strong>
+      <div class="article-nav-title">
+        
+          使用 React、Redux 和 Bootstrap 实现 Alert
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/04/04/ng2-router-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">上一篇</strong>
+      <div class="article-nav-title">Angular2系列教程（十）两种启动方法、两个路由服务、引用类型和单例模式的妙用</div>
+    </a>
+  
+</nav>
+
+	
+</article>
+
+
+<section id="comments">
+	<!-- 多说评论框 start -->
+	<div class="ds-thread" data-thread-key="post-ng2-router-2" data-title="Angular2系列教程（十一）路由嵌套、路由生命周期、matrix URL notation"
+		 data-url="https://lewis617.github.io/2016/04/04/ng2-router-2/"></div>
+	<!-- 多说评论框 end -->
+	<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+	<script type="text/javascript">
+		var duoshuoQuery = { short_name: 'liuyiqi' };
+		(function () {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';
+			ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0]
+			|| document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+	</script>
+	<!-- 多说公共JS代码 end -->
+</section>
+</section>
+        
+          <aside id="sidebar">
+  
+    <div class="widget-wrap">
+    <h3 class="widget-title">公告</h3>
+    <div class="widget">
+        <ul>
+			<li><a href="/2016/11/20/r2-book/" target="_blank">《React 与 Redux 开发实例精解》出版了！</a></li>
+		</ul>
+    </div>
+</div>
+
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular/">Angular</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Angular2/">Angular2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Babel/">Babel</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Bootstrap/">Bootstrap</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Flask/">Flask</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Gulp/">Gulp</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Jinja2/">Jinja2</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Karma/">Karma</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Node/">Node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/React/">React</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Redux/">Redux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Reflux/">Reflux</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RequireJs/">RequireJs</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/RxJS/">RxJS</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Universal/">Universal</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Webpack/">Webpack</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/jQuery/">jQuery</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/r-js/">r.js</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/redux-amrc/">redux-amrc</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/函数式编程/">函数式编程</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/图书/">图书</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/测试/">测试</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/跨域/">跨域</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Angular/" style="font-size: 14px;">Angular</a> <a href="/tags/Angular2/" style="font-size: 18px;">Angular2</a> <a href="/tags/Babel/" style="font-size: 10px;">Babel</a> <a href="/tags/Bootstrap/" style="font-size: 14px;">Bootstrap</a> <a href="/tags/Flask/" style="font-size: 12px;">Flask</a> <a href="/tags/Gulp/" style="font-size: 10px;">Gulp</a> <a href="/tags/Jinja2/" style="font-size: 10px;">Jinja2</a> <a href="/tags/Karma/" style="font-size: 12px;">Karma</a> <a href="/tags/Node/" style="font-size: 10px;">Node</a> <a href="/tags/React/" style="font-size: 20px;">React</a> <a href="/tags/Redux/" style="font-size: 20px;">Redux</a> <a href="/tags/Reflux/" style="font-size: 10px;">Reflux</a> <a href="/tags/RequireJs/" style="font-size: 16px;">RequireJs</a> <a href="/tags/RxJS/" style="font-size: 12px;">RxJS</a> <a href="/tags/Universal/" style="font-size: 12px;">Universal</a> <a href="/tags/Webpack/" style="font-size: 12px;">Webpack</a> <a href="/tags/jQuery/" style="font-size: 10px;">jQuery</a> <a href="/tags/nginx/" style="font-size: 10px;">nginx</a> <a href="/tags/r-js/" style="font-size: 10px;">r.js</a> <a href="/tags/redux-amrc/" style="font-size: 10px;">redux-amrc</a> <a href="/tags/函数式编程/" style="font-size: 10px;">函数式编程</a> <a href="/tags/图书/" style="font-size: 10px;">图书</a> <a href="/tags/测试/" style="font-size: 14px;">测试</a> <a href="/tags/跨域/" style="font-size: 10px;">跨域</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/12/">十二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/01/">一月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">十二月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/10/">十月 2015</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/12/09/rxjs-redux-react-amazing-2/">RxJS + Redux + React = Amazing!（译二）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/12/08/rxjs-redux-react-amazing-1/">RxJS + Redux + React = Amazing!（译一）</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/30/redux-amrc/">用更少的代码发起异步 action</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/26/opendata/">React 与 Redux 在生产环境中的实践总结</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/20/r2-book/">《React 与 Redux 开发实例精解》出版了！</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+    <div class="widget-wrap">
+	<h3 class="widget-title">关注我</h3>
+	<div class="widget">
+		<ul>
+			<li><a href="http://www.weibo.com/u/2207255374" target="_blank">微博</a></li>
+			<li><a href="https://github.com/lewis617" target="_blank">GitHub</a></li>
+		</ul>
+	</div>
+</div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+	
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Lewis617
+      <!-- 不蒜统计 -->
+      <br>
+      <span style="display: inline;" id="busuanzi_container_site_uv">本站总访客数 <span id="busuanzi_value_site_uv" font="微软雅黑" style="color:white"></span> 次</span>
+      <span style="display: inline;" id="busuanzi_container_site_pv">本站总访问量 <span id="busuanzi_value_site_pv" font="微软雅黑" style="color:white"></span> 次</span>
+    </div>
+  </div>
+</footer>
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//cdn.css.net/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-88398388-1', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+
+  </div>
+</body>
+</html>
